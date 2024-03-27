@@ -4,7 +4,7 @@ author: "Kristen Monaco, Praya Cheekapara, Raymond Fleming, Teng Ma"
 format: 
   revealjs: 
     theme: simple
-      embed-resources: true
+output: revealjs::revealjs_presentation
 ---
 
 ## Random Forest Overview {.smaller}
