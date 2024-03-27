@@ -1,0 +1,107 @@
+---
+title: "Random Forest"
+author: "Kristen Monaco, Praya Cheekapara, Raymond Fleming, Teng Ma"
+format: 
+  revealjs: 
+    theme: simple
+---
+
+## Random Forest Overview {.smaller}
+
+- Get in bed
+- Count sheep
+
+
+- Ensemble machine learning method based on a large number of decision trees voting to predict a classification
+- Benefits compared to decision tree:
+    - Able to function with incomplete data
+    -Lower likelihood of an overfit
+    -Improved prediction accuracy
+
+
+## Bootstrap Sampling (Bagging) {.smaller}
+
+- Each decision tree uses a random sample of the original dataset
+    - Using a subset of the dataset reduces the probability of an overfit model
+    - Rows with missing data will often be left out of the sample, improving performance
+
+
+## Random Feature Selection {.smaller}
+
+- A random set of features is selected for each node in training
+    - Information about feature importance may be saved and applies in future iterations
+    - Even with automated random feature selection, feature selection and engineering prior to training may improve performance 
+
+
+## Prediction {.smaller}
+
+- Each trained decision tree produces its own prediction
+    - Decision trees are independent, and were trained on different subsets of both data and features
+     
+     
+## Random Feature Selection {.smaller}
+
+- A random set of features is selected for each node in training
+    - Information about feature importance may be saved and applies in future iterations
+    - Even with automated random feature selection, feature selection and engineering prior to training may improve performance 
+     
+## Ensemble Voting {.smaller}
+
+- The results from each decision tree are combined into a voting classifier
+    - The mode of the classification results will be the final prediction
+     
+## Dataset {.smaller}
+
+- South African Red List
+    - Data about plants with their habitat, traits, distribution, and factors influencing their current threatened/extinct status
+- Purpose
+    - Predict whether or not an unknown plant is threatened based on the above characteristics
+
+## Visuals 1 {.smaller}
+
+ - 
+ 
+## Visuals 2 {.smaller}
+
+ - 
+ 
+## Analysis {.smaller}
+
+ - 5 separate random forest models were created using separate methods of normalization
+ 
+## Data Preparation {.smaller}
+
+- Preprocessing
+    - Encode categorical features into numerical / factor features
+    - Split the training set into a training and test set, avoiding class imbalance
+     
+## Preprocessing {.smaller}
+ 
+- Class Imbalance
+    - Resample smaller classes in order to approximate equal classes
+    - Training on imbalanced datasets will bias predictions to the larger class
+
+## Normalizatoin {.smaller}
+
+- Apply 5 normalization techniques to both training and test datasets
+    - Min-Max
+        -
+    - Z-Score
+        -
+    - Max Absolute Value
+        -
+    - L1 Norm
+        -
+    - L2 Norm
+        -
+
+## Prediction {.smaller}
+
+- Combine results into a vector
+- Identify the most frequently predicted class
+- Iterate over entire test set, storing results
+- Generate a confusion matrix, calculate the sensitivity, and precision for each category
+- Iterate after tuning if necessary
+
+
+## Results {.smaller}
