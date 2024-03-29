@@ -3,7 +3,7 @@ title: "Random Forest"
 author: "Kristen Monaco, Praya Cheekapara, Raymond Fleming, Teng Ma"
 format: 
   revealjs: 
-    theme: simple
+    theme: [simple, custom.scss]
     embed-resources: true
 output: revealjs::revealjs_presentation
 ---
@@ -61,11 +61,33 @@ output: revealjs::revealjs_presentation
 
 ## Visuals 1 {.smaller}
 
- - 
- 
-## Visuals 2 {.smaller}
+:::: {.columns}
 
- - 
+::: {.column width="50%"}
+ - Distribution Range
+:::
+
+:::{.column width="50%"}
+ ![](DistributionRange.png){.absolute top=100 Right=0 width="700" height="500"}
+
+:::
+
+
+::::
+
+## Visuals 2 {.smaller}
+:::: {.columns}
+
+::: {.column width="50%"}
+ - Correlation
+:::
+
+:::{.column width="50%"}
+ ![](Correlations.png){.absolute top=100 Right=0 width="700" height="500"}
+:::
+
+
+::::
  
 ## Analysis {.smaller}
 
