@@ -105,7 +105,7 @@ output: revealjs::revealjs_presentation
     - Resample smaller classes in order to approximate equal classes
     - Training on imbalanced datasets will bias predictions to the larger class
 
-## Normalizatoin {.smaller}
+## Normalization {.smaller}
 
 - Apply 5 normalization techniques to both training and test datasets
     - Min-Max
