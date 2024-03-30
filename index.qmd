@@ -10,9 +10,6 @@ output: revealjs::revealjs_presentation
 
 ## Random Forest Overview {.smaller}
 
-- Get in bed
-- Count sheep
-
 
 - Ensemble machine learning method based on a large number of decision trees voting to predict a classification
 - Benefits compared to decision tree:
@@ -26,14 +23,46 @@ output: revealjs::revealjs_presentation
 - Each decision tree uses a random sample of the original dataset
     - Using a subset of the dataset reduces the probability of an overfit model
     - Rows with missing data will often be left out of the sample, improving performance
-
+    - Performed with replacement
 
 ## Random Feature Selection {.smaller}
 
-- A random set of features is selected for each node in training
-    - Information about feature importance may be saved and applies in future iterations
-    - Even with automated random feature selection, feature selection and engineering prior to training may improve performance 
+:::: {.columns}
 
+::: {.column width="50%"}
+ - A random set of features is selected for each node in training
+     - Information about feature importance may be saved and applies in future iterations
+     - Even with automated random feature selection, feature selection and engineering prior to training may improve performance 
+:::
+
+:::{.column width="50%"}
+ ![](FeatureImportance.png){.absolute top=100 Right=0 width="700" height="500"}
+
+:::
+
+
+::::  
+
+
+## Cross Validation {.smaller}
+
+
+     
+:::: {.columns}
+
+::: {.column width="50%"}
+ - Validation of performance of model
+    - Resampling method similar to bootstrapping, but without replacement
+    - Allows approximation of the general performance of a model
+:::
+
+:::{.column width="50%"}
+ ![](CrossValidation.png){.absolute top=100 Right=0 width="700" height="500"}
+
+:::
+
+
+::::  
 
 ## Prediction {.smaller}
 
@@ -41,11 +70,7 @@ output: revealjs::revealjs_presentation
     - Decision trees are independent, and were trained on different subsets of both data and features
      
      
-## Random Feature Selection {.smaller}
-
-- A random set of features is selected for each node in training
-    - Information about feature importance may be saved and applies in future iterations
-    - Even with automated random feature selection, feature selection and engineering prior to training may improve performance 
+   
      
 ## Ensemble Voting {.smaller}
 
@@ -79,7 +104,7 @@ output: revealjs::revealjs_presentation
 :::: {.columns}
 
 ::: {.column width="50%"}
- - Correlation
+ - Cramer's V Association
 :::
 
 :::{.column width="50%"}
@@ -95,19 +120,19 @@ output: revealjs::revealjs_presentation
  
 ## Data Preparation {.smaller}
 
-- Preprocessing
+ - Preprocessing
     - Encode categorical features into numerical / factor features
     - Split the training set into a training and test set, avoiding class imbalance
      
 ## Preprocessing {.smaller}
  
-- Class Imbalance
+ - Class Imbalance
     - Resample smaller classes in order to approximate equal classes
     - Training on imbalanced datasets will bias predictions to the larger class
 
 ## Normalization {.smaller}
 
-- Apply 5 normalization techniques to both training and test datasets
+ - Apply 5 normalization techniques to both training and test datasets
     - Min-Max
         -
     - Z-Score
@@ -121,11 +146,15 @@ output: revealjs::revealjs_presentation
 
 ## Prediction {.smaller}
 
-- Combine results into a vector
-- Identify the most frequently predicted class
-- Iterate over entire test set, storing results
-- Generate a confusion matrix, calculate the sensitivity, and precision for each category
-- Iterate after tuning if necessary
+ - Combine results into a vector
+ - Identify the most frequently predicted class
+ - Iterate over entire test set, storing results
+ - Generate a confusion matrix, calculate the sensitivity, and precision for each category
+ - Iterate after tuning if necessary
 
 
 ## Results {.smaller}
+
+ - Range was found to be the strongest predictor of extinction
+ - Habitat loss is the second strongest predictor of extinction
+  
