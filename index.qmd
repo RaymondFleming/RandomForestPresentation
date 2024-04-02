@@ -8,8 +8,43 @@ format:
 output: revealjs::revealjs_presentation
 ---
 
-## Random Forest Overview {.smaller}
+## TestSlide
 
+```{r}
+#| echo: FALSE
+library(readr)
+library(plyr)
+library(ipred)
+library(caret)
+library(caTools)
+library(randomForest)
+library(ROSE)
+library(ggplot2)
+library(knitr)
+```
+```{r}
+#| echo: TRUE
+#| code-fold: TRUE
+
+
+data <- read_csv("All_threat_data.csv")
+
+ggplot(data, aes(x = factor(Status), fill = factor(Status))) + 
+  geom_bar(show.legend = FALSE) +
+  scale_fill_brewer(palette = "Paired") +
+  labs(title = "Barplot of Status", 
+       x = "Status", 
+       y = "Frequency") +
+  theme_minimal() +
+  theme(text = element_text(size = 12),
+        plot.title = element_text(hjust = 0.5),
+        axis.title = element_text(size = 14, face = "bold"),
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.grid.major = element_line(color = "grey80"),
+        panel.grid.minor = element_blank())
+```
+
+## Random Forest Overview {.smaller}
 
 - Ensemble machine learning method based on a large number of decision trees voting to predict a classification
 - Benefits compared to decision tree:
@@ -36,13 +71,73 @@ output: revealjs::revealjs_presentation
 :::
 
 :::{.column width="50%"}
- ![](FeatureImportance.png){.absolute top=100 Right=0 width="700" height="500"}
+```{r}
+library(readr)
+library(plyr)
+library(ipred)
+library(caret)
+library(caTools)
+library(randomForest)
+library(ROSE)
+library(ggplot2)
+library(knitr)
+library(rsample)     
+library(dplyr)       
+library(rpart)       
+library(rpart.plot)  
+library(ipred)      
+library(caret)      
+library(readr)
+ 
+dataP2 <- read_csv("process.csv")
+dataP2 <- as.data.frame(dataP2)
+set.seed(123)
+split2 <- sample.split(dataP2, SplitRatio = 0.7) 
+species_train <- subset(dataP2, split2 == "TRUE") 
+species_test <- subset(dataP2, split2 == "FALSE")
+
+```
+
+```{r}
+#| echo: FALSE
+#| code-fold: FALSE
+
+ctrl <- trainControl(method = "cv",  number = 10) 
+
+bagged_cv <- train(
+  Group~ LF + GF + Biomes + Range +
+    Habitat_degradation + Habitat_loss + IAS +
+    Other + Unknown + Other + Over_exploitation,
+  data    = species_train,
+  method = "treebag",
+  trControl = ctrl,
+  importance = TRUE
+)
+ 
+plot(varImp(bagged_cv), 10)
+```
+
 
 :::
 
 
 ::::  
+```{r}
+#| echo: TRUE
+#| code-fold: TRUE
+#| output: FALSE
+ctrl <- trainControl(method = "cv",  number = 10) 
 
+bagged_cv <- train(
+  Group~ LF + GF + Biomes + Range + Habitat_degradation +  
+     Habitat_loss + IAS + Other + Unknown + Other + Over_exploitation,
+  data    = species_train,
+  method = "treebag",
+  trControl = ctrl,
+  importance = TRUE)
+
+plot(varImp(bagged_cv), 10)
+```
 
 ## Cross Validation {.smaller}
 
@@ -54,15 +149,45 @@ output: revealjs::revealjs_presentation
  - Validation of performance of model
     - Resampling method similar to bootstrapping, but without replacement
     - Allows approximation of the general performance of a model
+
 :::
 
 :::{.column width="50%"}
- ![](CrossValidation.png){.absolute top=100 Right=0 width="700" height="500"}
+
+```{r}
+#| echo: FALSE
+#| code-fold: FALSE
+
+m3 <- rpart(
+  formula = Group~ LF + GF + Biomes + Range +
+    Habitat_degradation + Habitat_loss + IAS +
+    Other + Unknown + Other + Over_exploitation,
+  data    = species_train,
+  method  = "anova"
+)
+
+rpart.plot(m3)
+
+```
 
 :::
 
 
 ::::  
+```{r}
+#| echo: TRUE
+#| code-fold: TRUE
+#| output: FALSE
+
+ m3 <- rpart(
+   formula = Group~ LF + GF + Biomes + Range +
+     Habitat_degradation + Habitat_loss + IAS +
+     Other + Unknown + Other + Over_exploitation,
+   data    = species_train,
+   method  = "anova"
+ )
+ rpart.plot(m3)
+```
 
 ## Prediction {.smaller}
 
@@ -93,26 +218,103 @@ output: revealjs::revealjs_presentation
 :::
 
 :::{.column width="50%"}
- ![](DistributionRange.png){.absolute top=100 Right=0 width="700" height="500"}
+
+```{r}
+#| echo: false
+
+library(readr)
+library(plyr)
+library(ipred)
+library(caret)
+library(caTools)
+library(randomForest)
+library(ROSE)
+library(ggplot2)
+library(knitr)
+
+
+```
+```{r}
+#| echo: FALSE
+#| code-fold: FALSE
+ggplot(data = data, aes(x = Status, y = Range, fill = Status)) +
+  geom_boxplot() +
+  theme_bw() +
+  ylim(0,100000)
+```
 
 :::
 
 
 ::::
+
+```{r}
+#| echo: TRUE
+#| code-fold: TRUE
+#| output: false
+ggplot(data = data, aes(x = Status, y = Range, fill = Status)) +
+  geom_boxplot() +
+  theme_bw() +
+  ylim(0,100000)
+```
 
 ## Visuals 2 {.smaller}
 :::: {.columns}
 
 ::: {.column width="50%"}
- - Cramer's V Association
+ - Cramer's V Association with Range binned into 20 categories
+    - Target feature Group is most associated with Range, Family, Habitat Loss, Biome, and GF
+    - The most associated features will likely be the most important features during model training
+    - Colinearity does not appear to be present, further checks are
 :::
 
 :::{.column width="50%"}
- ![](Correlations.png){.absolute top=100 Right=0 width="700" height="500"}
+```{r}
+#| echo: false
+#| 
+library(tidyverse)
+library(fastDummies)
+library(caret)
+library(randomForest)
+library(corrplot)
+library(DescTools)
+
+train<-read.csv("All_threat_data.csv")
+
+train$Group <- as.factor(train$Group)
+train$LF <- as.factor(train$LF)
+train$GF <- as.factor(train$GF)
+train$Fam <- as.factor(train$Fam)
+train$Biomes <- as.factor(train$Biomes)
+train$Habitat_degradation <- as.factor(train$Habitat_degradation)
+train$Habitat_loss <- as.factor(train$Habitat_loss)
+train$IAS <- as.factor(train$IAS)
+train$Other <- as.factor(train$Other)
+train$Over_exploitation <- as.factor(train$Over_exploitation)
+train$Pollution <- as.factor(train$Pollution)
+train$Unknown <- as.factor(train$Unknown)
+train$Status <- as.factor(train$Status)
+corrDFRange <- train %>% select(Group, LF, GF, Biomes, Range, Habitat_degradation, Habitat_loss, IAS, Other, Over_exploitation, Pollution, Unknown)
+```
+```{r}
+#| echo: FALSE
+#| code-fold: TRUE
+#Binning Range to make it categorical
+corrDFRange <- corrDFRange %>% mutate(Range=ntile(Range, n=20))
+corrplot::corrplot(DescTools::PairApply(corrDFRange,DescTools::CramerV), type='lower')
+```
 :::
 
 
 ::::
+```{r}
+#| echo: TRUE
+#| code-fold: TRUE
+#| output: false
+#Binning Range to make it categorical
+corrDFRange <- corrDFRange %>% mutate(Range=ntile(Range, n=20))
+corrplot::corrplot(DescTools::PairApply(corrDFRange,DescTools::CramerV), type='lower')
+```
  
 ## Analysis {.smaller}
 
@@ -132,17 +334,20 @@ output: revealjs::revealjs_presentation
 
 ## Normalization {.smaller}
 
- - Apply 5 normalization techniques to both training and test datasets
-    - Min-Max
-        -
-    - Z-Score
-        -
-    - Max Absolute Value
-        -
-    - L1 Norm
-        -
-    - L2 Norm
-        -
+::: {.panel-tabset}
+
+### Min-Max
+    
+### Z-Score
+    
+### Max Absolute Value
+    
+### L1 Norm
+    
+### L2 Norm
+
+:::
+    
 
 ## Prediction {.smaller}
 
@@ -158,3 +363,4 @@ output: revealjs::revealjs_presentation
  - Range was found to be the strongest predictor of extinction
  - Habitat loss is the second strongest predictor of extinction
   
+
