@@ -8,69 +8,51 @@ format:
 output: revealjs::revealjs_presentation
 ---
 
-## TestSlide
+## Random Forest Introduction {.smaller}
 
-```{r}
-#| echo: FALSE
-library(readr)
-library(plyr)
-library(ipred)
-library(caret)
-library(caTools)
-library(randomForest)
-library(ROSE)
-library(ggplot2)
-library(knitr)
-```
-```{r}
-#| echo: TRUE
-#| code-fold: TRUE
+-   Ensemble machine learning method based on a large number of decision trees voting to predict a classification
+-   Benefits compared to decision tree:
+    -   Able to function with incomplete data
+    -   Lower likelihood of an overfit
+    -   Improved prediction accuracy
 
+## Random Forest Applications {.smaller}
 
-data <- read_csv("All_threat_data.csv")
+-   Banking
+    -   Fraud Detection
+    -   Loan Default Risk
+-   Business
+    -   Predictive Advertising
 
-ggplot(data, aes(x = factor(Status), fill = factor(Status))) + 
-  geom_bar(show.legend = FALSE) +
-  scale_fill_brewer(palette = "Paired") +
-  labs(title = "Barplot of Status", 
-       x = "Status", 
-       y = "Frequency") +
-  theme_minimal() +
-  theme(text = element_text(size = 12),
-        plot.title = element_text(hjust = 0.5),
-        axis.title = element_text(size = 14, face = "bold"),
-        axis.text.x = element_text(angle = 45, hjust = 1),
-        panel.grid.major = element_line(color = "grey80"),
-        panel.grid.minor = element_blank())
-```
+## Methods {.smaller}
 
-## Random Forest Overview {.smaller}
-
-- Ensemble machine learning method based on a large number of decision trees voting to predict a classification
-- Benefits compared to decision tree:
-    - Able to function with incomplete data
-    -Lower likelihood of an overfit
-    -Improved prediction accuracy
-
+-   Bagging
+-   Boosting
+-   Random Feature Selection
+-   Cross Validation
+-   Ensemble voting and Prediction
 
 ## Bootstrap Sampling (Bagging) {.smaller}
 
-- Each decision tree uses a random sample of the original dataset
-    - Using a subset of the dataset reduces the probability of an overfit model
-    - Rows with missing data will often be left out of the sample, improving performance
-    - Performed with replacement
+-   Each decision tree uses a random sample of the original dataset
+    -   Using a subset of the dataset reduces the probability of an overfit model
+    -   Rows with missing data will often be left out of the sample, improving performance
+    -   Performed with replacement
+
+## Boosting {.smaller}
+
+-   When individual models are trained in a sequential way, each model then learns the mistakes made by preceding model.
 
 ## Random Feature Selection {.smaller}
 
-:::: {.columns}
-
+::: columns
 ::: {.column width="50%"}
- - A random set of features is selected for each node in training
-     - Information about feature importance may be saved and applies in future iterations
-     - Even with automated random feature selection, feature selection and engineering prior to training may improve performance 
+-   A random set of features is selected for each node in training
+    -   Information about feature importance may be saved and applies in future iterations
+    -   Even with automated random feature selection, feature selection and engineering prior to training may improve performance
 :::
 
-:::{.column width="50%"}
+::: {.column width="50%"}
 ```{r}
 library(readr)
 library(plyr)
@@ -116,12 +98,9 @@ bagged_cv <- train(
  
 plot(varImp(bagged_cv), 10)
 ```
-
-
+:::
 :::
 
-
-::::  
 ```{r}
 #| echo: TRUE
 #| code-fold: TRUE
@@ -141,19 +120,14 @@ plot(varImp(bagged_cv), 10)
 
 ## Cross Validation {.smaller}
 
-
-     
-:::: {.columns}
-
+::: columns
 ::: {.column width="50%"}
- - Validation of performance of model
-    - Resampling method similar to bootstrapping, but without replacement
-    - Allows approximation of the general performance of a model
-
+-   Validation of performance of model
+    -   Resampling method similar to bootstrapping, but without replacement
+    -   Allows approximation of the general performance of a model
 :::
 
-:::{.column width="50%"}
-
+::: {.column width="50%"}
 ```{r}
 #| echo: FALSE
 #| code-fold: FALSE
@@ -169,11 +143,9 @@ m3 <- rpart(
 rpart.plot(m3)
 
 ```
-
+:::
 :::
 
-
-::::  
 ```{r}
 #| echo: TRUE
 #| code-fold: TRUE
@@ -189,36 +161,82 @@ rpart.plot(m3)
  rpart.plot(m3)
 ```
 
-## Prediction {.smaller}
+## Ensemble Voting and Prediction {.smaller}
 
-- Each trained decision tree produces its own prediction
-    - Decision trees are independent, and were trained on different subsets of both data and features
-     
-     
-   
-     
-## Ensemble Voting {.smaller}
+-   Each trained decision tree produces its own prediction
+    -   Decision trees are independent, and were trained on different subsets of both data and features
+-   The results from each decision tree are combined into a voting classifier
+    -   The mode of the classification results will be the final prediction
 
-- The results from each decision tree are combined into a voting classifier
-    - The mode of the classification results will be the final prediction
-     
-## Dataset {.smaller}
+## Data Preparation {.smaller}
 
-- South African Red List
-    - Data about plants with their habitat, traits, distribution, and factors influencing their current threatened/extinct status
-- Purpose
-    - Predict whether or not an unknown plant is threatened based on the above characteristics
+-   Preprocessing
+    -   Encode categorical features into numerical / factor features
+    -   Split the training set into a training and test set, minimizing class imbalance
 
-## Visuals 1 {.smaller}
+## Preprocessing {.smaller}
 
-:::: {.columns}
+-   Class Imbalance
+    -   Resample smaller classes in order to approximate equal classes
+    -   Training on imbalanced datasets will bias predictions to the larger class
 
-::: {.column width="50%"}
- - Distribution Range
+## Normalization {.smaller}
+
+::: panel-tabset
+### Min-Max
+
+-   $X_{new}=\frac{X_{old}-\min(X_{old})}{\max(X_{old})-\min(x_{old})}$
+
+### Z-Score
+
+-   $X_{new}=\frac{X_{old}-\bar{X}_{old}}{\sigma_{X_{old}}}$
+
+### Max Absolute Value
+
+-   $X_{new}=\frac{X_{old}}{\max(|X_{old}|)}$
+
+### L1 Norm
+
+-   $X_{new}=\frac{X_{old}}{\sum|X_{old}|}$
+
+### L2 Norm
+
+-   $X_{new}=\frac{X_{old}}{\sqrt{\sum(X_{old}^2))}}$
 :::
 
-:::{.column width="50%"}
+## Prediction {.smaller}
 
+-   Combine results into a vector
+    -   $Y=\{y_1,y_2,y_3,y_4,y_5\}$
+-   Identify the most frequently predicted class
+    -   $y_{final}=\text{mode}(Y)$
+-   Iterate over entire test set, storing results
+-   Generate a confusion matrix, calculate the sensitivity, and precision for each category
+-   Iterate after tuning if necessary
+
+##Evaluation - Four metrics are calculated using the test set 
+ - $\text{Accuracy}=\frac{\sum{\left(\text{Actual Label} = \text{Predicted Label}\right)}}{\text{Label Count}}$
+ - $\text{Recall}=\frac{\text{True Positives}}{\text{True Positives} + \text{False Negatives}}$
+ - $\text{Precision}=\frac{\text{True Positives}}{\text{True Positives}+\text{False Positives}}$
+ - $\text{F1}=\frac{2*(\text{Precision}*\text{Recall})}{\text{Precision}+\text{Recall}}$
+
+## Dataset and Exploration {.smaller}
+
+-   South African Red List
+    -   Data about plants with their habitat, traits, distribution, and factors influencing their current threatened/extinct status
+-   Purpose
+    -   Predict whether or not an unknown plant is threatened based on the above characteristics
+
+## Distribution of Range by Conservation Status {.smaller}
+
+::: columns
+::: {.column width="50%"}
+-   While there are a small number of threatened species with a large range, it is clear that Range is likely a strong predictor of Group status
+
+-   A lower range predicts a higher likelihood of threatened or extinct grouping.
+:::
+
+::: {.column width="50%"}
 ```{r}
 #| echo: false
 
@@ -232,21 +250,19 @@ library(ROSE)
 library(ggplot2)
 library(knitr)
 
-
+data <- read.csv("All_threat_data.csv")
 ```
+
 ```{r}
 #| echo: FALSE
 #| code-fold: FALSE
-ggplot(data = data, aes(x = Status, y = Range, fill = Status)) +
+ggplot(data = data, aes(x = Group, y = Range, fill = Group)) +
   geom_boxplot() +
   theme_bw() +
   ylim(0,100000)
 ```
-
 :::
-
-
-::::
+:::
 
 ```{r}
 #| echo: TRUE
@@ -258,17 +274,17 @@ ggplot(data = data, aes(x = Status, y = Range, fill = Status)) +
   ylim(0,100000)
 ```
 
-## Visuals 2 {.smaller}
-:::: {.columns}
+## Feature Associations {.smaller}
 
+::: columns
 ::: {.column width="50%"}
- - Cramer's V Association with Range binned into 20 categories
-    - Target feature Group is most associated with Range, Family, Habitat Loss, Biome, and GF
-    - The most associated features will likely be the most important features during model training
-    - Colinearity does not appear to be present, further checks are
+-   Cramer's V Association with Range binned into 20 categories
+    -   Target feature Group is most associated with Range, Family, Habitat Loss, Biome, and GF
+    -   The most associated features will likely be the most important features during model training
+    -   Colinearity does not appear to be present, further checks are
 :::
 
-:::{.column width="50%"}
+::: {.column width="50%"}
 ```{r}
 #| echo: false
 #| 
@@ -296,6 +312,7 @@ train$Unknown <- as.factor(train$Unknown)
 train$Status <- as.factor(train$Status)
 corrDFRange <- train %>% select(Group, LF, GF, Biomes, Range, Habitat_degradation, Habitat_loss, IAS, Other, Over_exploitation, Pollution, Unknown)
 ```
+
 ```{r}
 #| echo: FALSE
 #| code-fold: TRUE
@@ -304,9 +321,8 @@ corrDFRange <- corrDFRange %>% mutate(Range=ntile(Range, n=20))
 corrplot::corrplot(DescTools::PairApply(corrDFRange,DescTools::CramerV), type='lower')
 ```
 :::
+:::
 
-
-::::
 ```{r}
 #| echo: TRUE
 #| code-fold: TRUE
@@ -315,52 +331,353 @@ corrplot::corrplot(DescTools::PairApply(corrDFRange,DescTools::CramerV), type='l
 corrDFRange <- corrDFRange %>% mutate(Range=ntile(Range, n=20))
 corrplot::corrplot(DescTools::PairApply(corrDFRange,DescTools::CramerV), type='lower')
 ```
- 
+
 ## Analysis {.smaller}
 
- - 5 separate random forest models were created using separate methods of normalization
- 
-## Data Preparation {.smaller}
+-   The data was processed to allow it to be modeled effectively using a random forest
+-   5 separate random forest models were created using separate methods of normalization
+```{r}
+#| echo: FALSE
+#| code-fold: FALSE
+#| output: false
 
- - Preprocessing
-    - Encode categorical features into numerical / factor features
-    - Split the training set into a training and test set, avoiding class imbalance
-     
-## Preprocessing {.smaller}
- 
- - Class Imbalance
-    - Resample smaller classes in order to approximate equal classes
-    - Training on imbalanced datasets will bias predictions to the larger class
+original_data <- read_csv("All_threat_data.csv")
+kable(head(original_data, 10))
+
+encode_data <- read_csv("process.csv")
+kable(head(encode_data, 10))
+data <- read.csv("process.csv")
+```
+## Data Processing {.smaller}
+
+-   Process the data by setting the first 14 columns as \[features\] and the last column as the \[label\]
+-   Split the dataset into training and testing sets
+-   Combine the training datasets
+-   Print the initial number of each category
+
+
+```{r}
+#| echo: TRUE
+#| code-fold: TRUE
+#| output: false
+features <- data[, 1:14]
+label <- data[, 15]
+
+set.seed(42)
+
+split <- sample.split(label, SplitRatio = 0.7)
+features_train = features[split,]
+features_test = features[!split,]
+label_train = label[split]
+label_test = label[!split]
+
+data_train <- features_train
+data_train$label <- label_train
+class_counts <- table(data_train$label)
+
+class_counts <- table(data_train$label)
+print(paste("( Before )Data Category Counts: ", class_counts))
+```
+
+## Handle class imbalance {.smaller}
+
+-   Process classes A and B
+-   Process classes A and C
+-   Retain records in data_train_AB_resampled where the label is ‘2’
+-   Retain records in data_train_AC_resampled where the label is ‘3’
+-   Retain records in both data_train_AB_resampled and data_train_AC_resampled where the label is ‘1’
+-   combine
+-   Print the number of each category after class imbalance handling
+
+```{r}
+#| echo: TRUE
+#| code-fold: TRUE
+#| output: false
+data_train_AB <- data_train
+data_train_AB <- data_train_AB[data_train_AB$label != '3',]
+data_train_AB_resampled <- ovun.sample(label ~ ., data = data_train_AB, method = "over", N = 980, seed = 1)$data
+
+data_train_AC <- data_train
+data_train_AC <- data_train_AC[data_train_AC$label != '2',]
+data_train_AC_resampled <- ovun.sample(label ~ ., data = data_train_AC, method = "over", N = 980, seed = 1)$data
+
+data_train_AB_2 <- data_train_AB_resampled[data_train_AB_resampled$label == '2',]
+data_train_AC_3 <- data_train_AC_resampled[data_train_AC_resampled$label == '3',]
+
+data_train_1 <- data_train_AB_resampled[data_train_AB_resampled$label == '1',]
+data_train_combined <- rbind(data_train_1, data_train_AB_2, data_train_AC_3)
+
+cat("( After )Data Category Counts:\n")
+print(table(data_train_combined$label))
+```
 
 ## Normalization {.smaller}
 
-::: {.panel-tabset}
+ - Divide the features and label, and apply different normalization to the training and testing sets
+ - Apply Min-Max normalization to features_train and features_test
+ - Apply Z-Score normalization to each column of features_train
+ - features_test <- as.data.frame(mapply(function(x, y) {(x - mean(y))/sd(y)}, features_test, features_train, SIMPLIFY = FALSE))
+ - Apply Max Absolute Value normalization to the training set
+ - Apply L1 norm normalization to the training set
+ - Apply L2 norm normalization to the training set
 
-### Min-Max
-    
-### Z-Score
-    
-### Max Absolute Value
-    
-### L1 Norm
-    
-### L2 Norm
+```{r}
+#| echo: FALSE
+#| code-fold: FALSE
+#| output: FALSE
+features_train <- data_train_combined[, 1:14]
+label <- data_train_combined[, 15]
+```
 
+```{r}
+#| echo: TRUE
+#| code-fold: TRUE
+#| output: false
+features_train <- as.data.frame(lapply(features_train, function(x) {(x-min(x))/(max(x)-min(x))}))
+features_test <- as.data.frame(lapply(features_test, function(x) {(x-min(x))/(max(x)-min(x))}))
+
+features_train_1 <- as.data.frame(lapply(features_train, function(x) {(x-min(x))/(max(x)-min(x))}))
+features_test_1 <- as.data.frame(lapply(features_test, function(x) {(x-min(x))/(max(x)-min(x))}))
+
+features_train_2 <- as.data.frame(lapply(features_train, function(x) {(x - mean(x))/sd(x)}))
+features_test_2 <- as.data.frame(lapply(features_test, function(x) {(x - mean(x))/sd(x)}))
+
+features_train_3 <- as.data.frame(lapply(features_train, function(x) {x / max(abs(x))}))
+features_test_3 <- as.data.frame(lapply(features_test, function(x) {x / max(abs(x))}))
+
+features_train_4 <- as.data.frame(lapply(features_train, function(x) {x / sum(abs(x))}))
+features_test_4 <- as.data.frame(lapply(features_test, function(x) {x / sum(abs(x))}))
+
+features_train_5 <- as.data.frame(lapply(features_train, function(x) {x / sqrt(sum(x^2))}))
+features_test_5 <- as.data.frame(lapply(features_test, function(x) {x / sqrt(sum(x^2))}))
+```
+
+```{r}
+#| echo: FALSE
+#| code-fold: FALSE
+#| output: FALSE
+data_train <- features_train
+data_train$label <- label
+class_counts <- table(data_train$label)
+
+data_train_1 <- features_train_1
+data_train_1$label <- label
+class_counts_1 <- table(data_train_1$label)
+
+data_train_2 <- features_train_2
+data_train_2$label <- label
+class_counts_2 <- table(data_train_2$label)
+
+data_train_3 <- features_train_3
+data_train_3$label <- label
+class_counts_3 <- table(data_train_3$label)
+
+data_train_4 <- features_train_4
+data_train_4$label <- label
+class_counts_4 <- table(data_train_4$label)
+
+data_train_5 <- features_train_5
+data_train_5$label <- label
+class_counts_5 <- table(data_train_5$label)
+```
+
+## Model Training {.smaller}
+
+::: panel-tabset
+### Min-Max {.smaller}
+
+```{r}
+#| echo: TRUE
+#| code-fold: FALSE
+#| output: TRUE
+model_1 <- randomForest(x = data_train_1[-ncol(data_train_combined)], y = as.factor(data_train_1$label), ntree = 2)
+variable_importance_1 = importance(model_1)
+pred_comb_1 <- predict(model_1, features_test_1)
+accuracy <- sum(label_test == pred_comb_1) / length(label_test)
+label_test_factor <- as.factor(label_test)
+pred_comb_1_factor <- as.factor(pred_comb_1)
+cm <- confusionMatrix(pred_comb_1_factor, label_test_factor)
+recall <- mean(c(cm$byClass["Class: 1", "Sensitivity"], cm$byClass["Class: 2", "Sensitivity"], cm$byClass["Class: 3", "Sensitivity"]))
+precision <- mean(c(cm$byClass["Class: 1", "Pos Pred Value"], cm$byClass["Class: 2", "Pos Pred Value"], cm$byClass["Class: 3", "Pos Pred Value"]))
+F1 = 2 * recall * precision / ( recall + precision )
+printTable=matrix(c(round(accuracy,2),round(recall,2),round(precision,2),round(F1,2)),ncol=1,byrow=TRUE)
+colnames(printTable)=c('Score')
+rownames(printTable)=c('Accuracy','Recall','Precision','F1')
+print(printTable)
+```
+
+### Z-Score {.smaller}
+
+```{r}
+#| echo: TRUE
+#| code-fold: FALSE
+#| output: TRUE
+
+model_2 <- randomForest(x = data_train_2[-ncol(data_train_combined)], y = as.factor(data_train_2$label), ntree = 2) # nolint
+variable_importance_2 = importance(model_2) # nolint
+pred_comb_2 <- predict(model_2, features_test_2)
+accuracy <- sum(label_test == pred_comb_2) / length(label_test)
+label_test_factor <- as.factor(label_test)
+pred_comb_1_factor <- as.factor(pred_comb_2)
+cm <- confusionMatrix(pred_comb_1_factor, label_test_factor)
+recall <- mean(c(cm$byClass["Class: 1", "Sensitivity"],  # nolint
+                              cm$byClass["Class: 2", "Sensitivity"],  # nolint
+                              cm$byClass["Class: 3", "Sensitivity"]))
+
+precision <- mean(c(cm$byClass["Class: 1", "Pos Pred Value"], # nolint 
+                            cm$byClass["Class: 2", "Pos Pred Value"], # nolint 
+                            cm$byClass["Class: 3", "Pos Pred Value"]))
+F1 = 2 * recall * precision / ( recall + precision ) # nolint
+printTable=matrix(c(round(accuracy,2),round(recall,2),round(precision,2),round(F1,2)),ncol=1,byrow=TRUE)
+colnames(printTable)=c('Score')
+rownames(printTable)=c('Accuracy','Recall','Precision','F1')
+print(printTable)
+```
+
+### Max Absolute Value {.smaller}
+
+```{r}
+#| echo: TRUE
+#| code-fold: FALSE
+#| output: TRUE
+model_3 <- randomForest(x = data_train_3[-ncol(data_train_combined)], y = as.factor(data_train_3$label), ntree = 2)
+variable_importance_3 = importance(model_3)
+pred_comb_3 <- predict(model_3, features_test_3)
+accuracy <- sum(label_test == pred_comb_3) / length(label_test)
+label_test_factor <- as.factor(label_test)
+pred_comb_1_factor <- as.factor(pred_comb_3)
+cm <- confusionMatrix(pred_comb_1_factor, label_test_factor)
+recall <- mean(c(cm$byClass["Class: 1", "Sensitivity"],
+                              cm$byClass["Class: 2", "Sensitivity"],
+                              cm$byClass["Class: 3", "Sensitivity"]))
+precision <- mean(c(cm$byClass["Class: 1", "Pos Pred Value"],
+                            cm$byClass["Class: 2", "Pos Pred Value"],
+                            cm$byClass["Class: 3", "Pos Pred Value"]))
+F1 = 2 * recall * precision / ( recall + precision )
+printTable=matrix(c(round(accuracy,2),round(recall,2),round(precision,2),round(F1,2)),ncol=1,byrow=TRUE)
+colnames(printTable)=c('Score')
+rownames(printTable)=c('Accuracy','Recall','Precision','F1')
+print(printTable)
+```
+
+### L1 Norm {.smaller}
+
+```{r}
+#| echo: TRUE
+#| code-fold: FALSE
+#| output: TRUE
+model_4 <- randomForest(x = data_train_4[-ncol(data_train_combined)], y = as.factor(data_train_4$label), ntree = 2)
+variable_importance_4 = importance(model_4)
+pred_comb_4 <- predict(model_4, features_test_4)
+accuracy <- sum(label_test == pred_comb_4) / length(label_test)
+label_test_factor <- as.factor(label_test)
+pred_comb_1_factor <- as.factor(pred_comb_4)
+cm <- confusionMatrix(pred_comb_1_factor, label_test_factor)
+recall <- mean(c(cm$byClass["Class: 1", "Sensitivity"],
+                              cm$byClass["Class: 2", "Sensitivity"],
+                              cm$byClass["Class: 3", "Sensitivity"]))
+precision <- mean(c(cm$byClass["Class: 1", "Pos Pred Value"],
+                            cm$byClass["Class: 2", "Pos Pred Value"],
+                            cm$byClass["Class: 3", "Pos Pred Value"]))
+F1 = 2 * recall * precision / ( recall + precision )
+printTable=matrix(c(round(accuracy,2),round(recall,2),round(precision,2),round(F1,2)),ncol=1,byrow=TRUE)
+colnames(printTable)=c('Score')
+rownames(printTable)=c('Accuracy','Recall','Precision','F1')
+print(printTable)
+```
+
+### L2 Norm {.smaller}
+
+```{r}
+#| echo: TRUE
+#| code-fold: FALSE
+#| output: TRUE
+model_5 <- randomForest(x = data_train_5[-ncol(data_train_combined)], y = as.factor(data_train_5$label), ntree = 2)
+variable_importance_5 = importance(model_5)
+pred_comb_5 <- predict(model_5, features_test_5)
+accuracy <- sum(label_test == pred_comb_5) / length(label_test)
+label_test_factor <- as.factor(label_test)
+pred_comb_1_factor <- as.factor(pred_comb_5)
+cm <- confusionMatrix(pred_comb_1_factor, label_test_factor)
+recall <- mean(c(cm$byClass["Class: 1", "Sensitivity"],
+                              cm$byClass["Class: 2", "Sensitivity"],
+                              cm$byClass["Class: 3", "Sensitivity"]))
+precision <- mean(c(cm$byClass["Class: 1", "Pos Pred Value"],
+                            cm$byClass["Class: 2", "Pos Pred Value"],
+                            cm$byClass["Class: 3", "Pos Pred Value"]))
+F1 = 2 * recall * precision / ( recall + precision )
+printTable=matrix(c(round(accuracy,2),round(recall,2),round(precision,2),round(F1,2)),ncol=1,byrow=TRUE)
+colnames(printTable)=c('Score')
+rownames(printTable)=c('Accuracy','Recall','Precision','F1')
+print(printTable)
+```
 :::
-    
 
 ## Prediction {.smaller}
 
- - Combine results into a vector
- - Identify the most frequently predicted class
- - Iterate over entire test set, storing results
- - Generate a confusion matrix, calculate the sensitivity, and precision for each category
- - Iterate after tuning if necessary
+-   Process classes A and B
+-   Process classes A and C
+-   Retain records in data_train_AB_resampled where the label is ‘2’
+-   Retain records in data_train_AC_resampled where the label is ‘3’
+-   Retain records in both data_train_AB_resampled and data_train_AC_resampled where the label is ‘1’
+-   combine
+-   Print the number of each category after class imbalance handling
 
+```{r}
+#| echo: TRUE
+#| code-fold: TRUE
+#| output: false
+data_train_AB <- data_train
+data_train_AB <- data_train_AB[data_train_AB$label != '3',]
+data_train_AB_resampled <- ovun.sample(label ~ ., data = data_train_AB, method = "over", N = 980, seed = 1)$data
 
-## Results {.smaller}
+data_train_AC <- data_train
+data_train_AC <- data_train_AC[data_train_AC$label != '2',]
+data_train_AC_resampled <- ovun.sample(label ~ ., data = data_train_AC, method = "over", N = 980, seed = 1)$data
 
- - Range was found to be the strongest predictor of extinction
- - Habitat loss is the second strongest predictor of extinction
-  
+data_train_AB_2 <- data_train_AB_resampled[data_train_AB_resampled$label == '2',]
+data_train_AC_3 <- data_train_AC_resampled[data_train_AC_resampled$label == '3',]
 
+data_train_1 <- data_train_AB_resampled[data_train_AB_resampled$label == '1',]
+data_train_combined <- rbind(data_train_1, data_train_AB_2, data_train_AC_3)
+
+cat("( After )Data Category Counts:\n")
+print(table(data_train_combined$label))
+```
+
+## Confusion Matrix {.smaller}
+
+-   Process classes A and B
+-   Process classes A and C
+-   Retain records in data_train_AB_resampled where the label is ‘2’
+-   Retain records in data_train_AC_resampled where the label is ‘3’
+-   Retain records in both data_train_AB_resampled and data_train_AC_resampled where the label is ‘1’
+-   combine
+-   Print the number of each category after class imbalance handling
+
+```{r}
+#| echo: TRUE
+#| code-fold: TRUE
+#| output: false
+data_train_AB <- data_train
+data_train_AB <- data_train_AB[data_train_AB$label != '3',]
+data_train_AB_resampled <- ovun.sample(label ~ ., data = data_train_AB, method = "over", N = 980, seed = 1)$data
+
+data_train_AC <- data_train
+data_train_AC <- data_train_AC[data_train_AC$label != '2',]
+data_train_AC_resampled <- ovun.sample(label ~ ., data = data_train_AC, method = "over", N = 980, seed = 1)$data
+
+data_train_AB_2 <- data_train_AB_resampled[data_train_AB_resampled$label == '2',]
+data_train_AC_3 <- data_train_AC_resampled[data_train_AC_resampled$label == '3',]
+
+data_train_1 <- data_train_AB_resampled[data_train_AB_resampled$label == '1',]
+data_train_combined <- rbind(data_train_1, data_train_AB_2, data_train_AC_3)
+
+cat("( After )Data Category Counts:\n")
+print(table(data_train_combined$label))
+```
+
+## Conclusion {.smaller}
+
+-   Range was found to be the strongest predictor of extinction
+-   Habitat loss is the second strongest predictor of extinction
