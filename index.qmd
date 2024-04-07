@@ -8,6 +8,8 @@ format:
 output: revealjs::revealjs_presentation
 ---
 
+# Introduction and Lit Review
+
 ## Random Forest Introduction {.smaller}
 
 -   Ensemble machine learning method based on a large number of decision trees voting to predict a classification
@@ -42,14 +44,18 @@ output: revealjs::revealjs_presentation
 :::
 :::
 
-## Methods {.smaller}
+## Lit Review
+
+- Lit Review
+
+# Methods {.smaller}
 
 -   Bagging
 -   Boosting
 -   Random Feature Selection
 -   Cross Validation
 
-## Common Improvements {.smaller}
+## Random Forest Improvements {.smaller}
 
 -   Bootstrap Sampling (Bagging)
     -   Each decision tree uses a random sample of the original dataset
@@ -59,7 +65,7 @@ output: revealjs::revealjs_presentation
 -   Boosting
     -   When individual models are trained in a sequential way, each model then learns the mistakes made by the preceding model.
 
-## Random Feature Selection {.smaller} (common improvements continued?)
+## Random Forest Improvements Continued {.smaller}
 
 -   A random set of features is selected for each node in training
     -   Information about feature importance may be saved and applies in future iterations
@@ -125,6 +131,7 @@ rpart.plot(m3)
 #| echo: TRUE
 #| code-fold: TRUE
 #| output: FALSE
+#| code-summary: "Decision Tree Visualization Code"
 
  m3 <- rpart(
    formula = Group~ LF + GF + Biomes + Range +
@@ -136,7 +143,7 @@ rpart.plot(m3)
  rpart.plot(m3)
 ```
 
-## Dataset and Exploration {.smaller}
+# Data {.smaller}
 
 -   South African Red List
     -   Data about plants with their habitat, traits, distribution, and factors influencing their current threatened/extinct status
@@ -184,19 +191,21 @@ ggplot(data = data, aes(x = Group, y = Range, fill = Group)) +
 #| echo: TRUE
 #| code-fold: TRUE
 #| output: false
+#| code-summary: "Distribution Visualization Code"
+
 ggplot(data = data, aes(x = Status, y = Range, fill = Status)) +
   geom_boxplot() +
   theme_bw() +
   ylim(0,100000)
 ```
 
-## Feature Associations {.smaller} (clean up wording)
+## Feature Associations {.smaller}
 
 ::: columns
 ::: {.column width="50%"}
 -   Cramer's V Association with Range binned into 20 categories
     -   Target feature Group is most associated with Range, Family, Habitat Loss, Biome, and GF
-    -   The most associated features will likely be the most important features during model training
+    -   The most associated features will likely be the most important training features
     -   Colinearity does not appear to be present
 :::
 
@@ -222,9 +231,11 @@ train<-read.csv("All_threat_data.csv")
 #| code-fold: TRUE
 
 corrDF <- train %>% mutate(Range=ntile(Range, n=20))
-corrDF %<>% mutate_at(c("Group","LF","GF","Biomes","Range","Habitat_degradation","Habitat_loss",
-                        "IAS","Other","Over_exploitation","Pollution","Unknown"),factor)
-corrDF <- corrDF %>% mutate(Range=ntile(Range, n=20))
+corrDF <- corrDF %>% mutate(across(c("Group","LF","GF","Range","Biomes","Range",
+                                     "Habitat_degradation","Habitat_loss",
+                                     "IAS","Other","Over_exploitation",
+                                     "Pollution","Unknown"),as_factor))
+
 corrplot::corrplot(DescTools::PairApply(corrDF,DescTools::CramerV), type='lower')
 ```
 :::
@@ -234,17 +245,21 @@ corrplot::corrplot(DescTools::PairApply(corrDF,DescTools::CramerV), type='lower'
 #| echo: TRUE
 #| code-fold: TRUE
 #| output: false
+#| code-summary: "Association Visualization Code"
+
 corrDF <- train %>% mutate(Range=ntile(Range, n=20))
-corrDF %<>% mutate_at(c("Group","LF","GF","Biomes","Range","Habitat_degradation","Habitat_loss",
-                        "IAS","Other","Over_exploitation","Pollution","Unknown"),factor)
-corrDF <- corrDF %>% mutate(Range=ntile(Range, n=20))
+corrDF <- corrDF %>% mutate(across(c("Group","LF","GF","Range","Biomes","Range",
+                                     "Habitat_degradation","Habitat_loss",
+                                     "IAS","Other","Over_exploitation",
+                                     "Pollution","Unknown"),as_factor))
+
 corrplot::corrplot(DescTools::PairApply(corrDF,DescTools::CramerV), type='lower')
 ```
 
 
+# Analysis and Results
 
-
-## Data Preparation {.smaller} Add example of data then factorized
+## Data Preparation {.smaller}
 ```{r}
 #| echo: FALSE
 #| code-fold: FALSE
@@ -257,19 +272,26 @@ encode_data <- read_csv("process.csv")
 kable(head(encode_data, 10))
 data <- read.csv("process.csv")
 ```
+::: columns
+::: {.column width="50%"}
 -   Preprocessing
     -   Encode categorical features into numerical / factor features
     -   Split the training set into a training and test set, 
     -   Minimize class imbalance
-
-## Class Balancing {.smaller}
-
+    
 ```{r}
 #| echo: FALSE
 #| code-fold: FALSE
 #| output: FALSE
-
 set.seed(42)
+```
+
+```{r}
+#| echo: TRUE
+#| code-fold: TRUE
+#| output: FALSE
+#| code-summary: "Data Split Code"
+
 features <- data[, 1:14]
 label <- data[, 15]
 
@@ -282,6 +304,71 @@ label_test = label[!split]
 data_train <- features_train
 data_train$label <- label_train
 ```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| echo: FALSE
+#| code-fold: FALSE
+#| output: TRUE
+#| code-summary: "Factorization Table Code"
+
+corrDF <- train %>% mutate(Range=ntile(Range, n=20))
+corrDF <- corrDF %>% mutate(
+             across(
+               c("Group","LF","GF","Range",
+                 "Biomes","Range",
+                 "Habitat_degradation",
+                 "Habitat_loss", "IAS","Other",
+                 "Over_exploitation","Pollution",
+                 "Unknown"),as_factor))
+
+FacTable=matrix(c(train$GF[1],train$GF[2],
+                  train$GF[3],corrDF$GF[1],
+                  corrDF$GF[2],corrDF$GF[3]),
+                  nrow=3)
+
+colnames(FacTable)=c('Raw','Factor')
+rownames(FacTable)=c('1','2','3')
+print(FacTable,quote=FALSE)
+```
+
+```{r}
+#| echo: TRUE
+#| code-fold: TRUE
+#| output: FALSE
+#| code-summary: "Factorization Table Code"
+
+corrDF <- train %>% 
+            mutate(Range=ntile(Range, n=20))
+
+corrDF <- corrDF %>% 
+            mutate(across(c(
+              "Group","LF","GF","Range",
+              "Biomes","Range",
+              "Habitat_degradation",
+              "Habitat_loss", "IAS","Other",
+              "Over_exploitation","Pollution",
+              "Unknown"),as_factor))
+
+printFactors=matrix(
+              c(train$GF[1],train$GF[2],
+                train$GF[3],corrDF$GF[1],
+                corrDF$GF[2],corrDF$GF[3]),
+                nrow=3)
+
+colnames(printFactors)=c('Raw','Factor')
+rownames(printFactors)=c('1','2','3')
+print(printFactors,quote=FALSE)
+```
+:::
+:::
+
+
+
+
+## Class Balancing {.smaller}
+
 
 ::: columns
 ::: {.column width="40%"}
@@ -293,33 +380,30 @@ data_train$label <- label_train
 #| echo: FALSE
 #| code-fold: FALSE
 #| output: TRUE
+#| code-summary: "Class Balancing Code"
 
-data_train_AB <- data_train
-data_train_AB <- data_train_AB[data_train_AB$label 
-                      != '3',]
-data_train_AB_resampled <- ovun.sample(label ~ .,
-                      data = data_train_AB, method = "over", 
-                      N = 980, seed = 1)$data
-
-data_train_AC <- data_train
-data_train_AC <- data_train_AC[data_train_AC$label
-                      != '2',]
-data_train_AC_resampled <- ovun.sample(label ~ .,
-                      data = data_train_AC,
+AB <- data_train
+AB <- AB[AB$label != '3',]
+AB_res <- ovun.sample(label ~ ., data = AB, 
                       method = "over", N = 980,
                       seed = 1)$data
 
-data_train_AB_2 <- data_train_AB_resampled[data_train_AB_resampled$label
-                      == '2',]
-data_train_AC_3 <- data_train_AC_resampled[data_train_AC_resampled$label
-                      == '3',]
+AC <- data_train
+AC <- AC[AC$label != '2',]
+AC_res <- ovun.sample(label ~ ., data = AC,
+                      method = "over", N = 980,
+                      seed = 1)$data
 
-data_train_1 <- data_train_AB_resampled[data_train_AB_resampled$label 
-                      == '1',]
-data_train_combined <- rbind(data_train_1, data_train_AB_2, data_train_AC_3)
+AB_2 <- AB_res[AB_res$label == '2',]
+AC_3 <- AC_res[AC_res$label == '3',]
 
-cat("Group Counts Pre-Balancing:  ",table(data_train$label),
-        "\nGroup Counts Post-Balancing: ",table(data_train_combined$label))
+data_train_1 <- AB_res[AB_res$label == '1',]
+data_train_combined <- rbind(data_train_1, AB_2, AC_3)
+
+cat("Group Counts Pre-Balancing:  ", 
+    table(data_train$label),
+    "\nGroup Counts Post-Balancing: ", 
+    table(data_train_combined$label))
 ```
 :::
 
@@ -329,54 +413,33 @@ cat("Group Counts Pre-Balancing:  ",table(data_train$label),
 #| code-fold: TRUE
 #| output: FALSE
 
-data_train_AB <- data_train
-data_train_AB <- data_train_AB[data_train_AB$label 
-                      != '3',]
-data_train_AB_resampled <- ovun.sample(label ~ .,
-                      data = data_train_AB, method = "over", 
-                      N = 980, seed = 1)$data
-
-data_train_AC <- data_train
-data_train_AC <- data_train_AC[data_train_AC$label
-                      != '2',]
-data_train_AC_resampled <- ovun.sample(label ~ .,
-                      data = data_train_AC,
+AB <- data_train
+AB <- AB[AB$label != '3',]
+AB_res <- ovun.sample(label ~ ., data = AB, 
                       method = "over", N = 980,
                       seed = 1)$data
 
-data_train_AB_2 <- data_train_AB_resampled[data_train_AB_resampled$label
-                      == '2',]
-data_train_AC_3 <- data_train_AC_resampled[data_train_AC_resampled$label
-                      == '3',]
+AC <- data_train
+AC <- AC[AC$label != '2',]
+AC_res <- ovun.sample(label ~ ., data = AC,
+                      method = "over", N = 980,
+                      seed = 1)$data
 
-data_train_1 <- data_train_AB_resampled[data_train_AB_resampled$label 
-                      == '1',]
-data_train_combined <- rbind(data_train_1, data_train_AB_2, data_train_AC_3)
+AB_2 <- AB_res[AB_res$label == '2',]
+AC_3 <- AC_res[AC_res$label == '3',]
 
-cat("Group Counts Pre-Balancing:  ",table(data_train$label),
-        "\nGroup Counts Post-Balancing: ",table(data_train_combined$label))
+data_train_1 <- AB_res[AB_res$label == '1',]
+data_train_combined <- rbind(data_train_1, AB_2, AC_3)
+
+cat("Group Counts Pre-Balancing:  ", 
+    table(data_train$label),
+    "\nGroup Counts Post-Balancing: ", 
+    table(data_train_combined$label))
 ```
 :::
 :::
 
-```{r}
-#| echo: FALSE
-#| code-fold: FALSE
-#| output: FALSE
 
-set.seed(42)
-features <- data[, 1:14]
-label <- data[, 15]
-
-split <- sample.split(label, SplitRatio = 0.7)
-features_train = features[split,]
-features_test = features[!split,]
-label_train = label[split]
-label_test = label[!split]
-
-data_train <- features_train
-data_train$label <- label_train
-```
 
 ```{r}
 #| echo: FALSE
@@ -855,55 +918,37 @@ print(printTable)
 #| echo: FALSE
 #| code-fold: FALSE
 #| output: TRUE
-
-
 n <- length(pred_comb_1)
-
-final_pred <- rep(NA, n)
-
+final_pred <-rep(NA, n)
 for(i in 1:n) {
    preds <- c(pred_comb_1[i], pred_comb_2[i], pred_comb_3[i], 
               pred_comb_4[i], pred_comb_5[i])
-
-   final_pred[i] <- as.numeric(names(which.max(table(preds))))
+   final_pred[i] <-as.numeric(names(which.max(table(preds))))
 }
 
-importances_list <- list(variable_importance_1, variable_importance_2, 
-                         variable_importance_3, variable_importance_4, 
-                         variable_importance_5)
-average_importance <- Reduce("+", importances_list) / 
-                      length(importances_list)
+accuracy <-sum(label_test == final_pred)/length(label_test)
 
+final_pred_factor <-as.factor(final_pred)
+label_test_factor <-as.factor(label_test)
+cm_vote <-confusionMatrix(final_pred_factor, label_test_factor)
 
-accuracy <- sum(label_test == final_pred) / length(label_test)
+sensitivity_class1 <-cm_vote$byClass["LC", "Sensitivity"]
+sensitivity_class2 <-cm_vote$byClass["Thr", "Sensitivity"]
+sensitivity_class3 <-cm_vote$byClass["Ext", "Sensitivity"]
+recall =(sensitivity_class1+sensitivity_class2+sensitivity_class3)/3
 
+precision_class1 <-cm_vote$byClass["LC", "Pos Pred Value"]
+precision_class2 <-cm_vote$byClass["Thr", "Pos Pred Value"]
+precision_class3 <-cm_vote$byClass["Ext", "Pos Pred Value"]
+precision=(precision_class1+precision_class2+precision_class3)/3
 
-final_pred_factor <- as.factor(final_pred)
-label_test_factor <- as.factor(label_test)
-
-cm_vote <- confusionMatrix(final_pred_factor, label_test_factor)
-
-sensitivity_class1 <- cm_vote$byClass["Class: 1", "Sensitivity"]
-sensitivity_class2 <- cm_vote$byClass["Class: 2", "Sensitivity"]
-sensitivity_class3 <- cm_vote$byClass["Class: 3", "Sensitivity"]
-recall = (sensitivity_class1 + sensitivity_class2 + sensitivity_class3)/3
-
-
-precision_class1 <- cm_vote$byClass["Class: 1", "Pos Pred Value"]
-precision_class2 <- cm_vote$byClass["Class: 2", "Pos Pred Value"]
-precision_class3 <- cm_vote$byClass["Class: 3", "Pos Pred Value"]
-precision = (precision_class1 + precision_class2 + precision_class3)/3
-
-
-F1 = 2 * recall * precision / ( recall + precision )
-
+F1=2*recall*precision/(recall+precision)
 
 printTable=matrix(c(round(accuracy,2),round(recall,2),
                     round(precision,2),round(F1,2)),ncol=1,
                     byrow=TRUE)
 colnames(printTable)=c('Score')
 rownames(printTable)=c('Accuracy','Recall','Precision','F1')
-
 print(printTable)
 
 ```
@@ -917,57 +962,51 @@ print(printTable)
 #| echo: TRUE
 #| code-fold: TRUE
 #| output: FALSE
+#| code-summary: "Prediction Code"
 
 
 n <- length(pred_comb_1)
-
-final_pred <- rep(NA, n)
-
+final_pred <-rep(NA, n)
 for(i in 1:n) {
    preds <- c(pred_comb_1[i], pred_comb_2[i], pred_comb_3[i], 
               pred_comb_4[i], pred_comb_5[i])
-
-   final_pred[i] <- as.numeric(names(which.max(table(preds))))
+   final_pred[i] <-as.numeric(names(which.max(table(preds))))
 }
 
-importances_list <- list(variable_importance_1, variable_importance_2, 
-                         variable_importance_3, variable_importance_4, 
-                         variable_importance_5)
-average_importance <- Reduce("+", importances_list) / 
-                      length(importances_list)
+accuracy <-sum(label_test == final_pred)/length(label_test)
 
+final_pred_factor <-as.factor(final_pred)
+label_test_factor <-as.factor(label_test)
+cm_vote <-confusionMatrix(final_pred_factor, label_test_factor)
 
-accuracy <- sum(label_test == final_pred) / length(label_test)
+sensitivity_class1 <-cm_vote$byClass["LC", "Sensitivity"]
+sensitivity_class2 <-cm_vote$byClass["Thr", "Sensitivity"]
+sensitivity_class3 <-cm_vote$byClass["Ext", "Sensitivity"]
+recall =(sensitivity_class1+sensitivity_class2+sensitivity_class3)/3
 
+precision_class1 <-cm_vote$byClass["LC", "Pos Pred Value"]
+precision_class2 <-cm_vote$byClass["Thr", "Pos Pred Value"]
+precision_class3 <-cm_vote$byClass["Ext", "Pos Pred Value"]
+precision=(precision_class1+precision_class2+precision_class3)/3
 
-final_pred_factor <- as.factor(final_pred)
-label_test_factor <- as.factor(label_test)
+F1=2*recall*precision/(recall+precision)
 
-cm_vote <- confusionMatrix(final_pred_factor, label_test_factor)
+```
 
-sensitivity_class1 <- cm_vote$byClass["Class: 1", "Sensitivity"]
-sensitivity_class2 <- cm_vote$byClass["Class: 2", "Sensitivity"]
-sensitivity_class3 <- cm_vote$byClass["Class: 3", "Sensitivity"]
-recall = (sensitivity_class1 + sensitivity_class2 + sensitivity_class3)/3
-
-
-precision_class1 <- cm_vote$byClass["Class: 1", "Pos Pred Value"]
-precision_class2 <- cm_vote$byClass["Class: 2", "Pos Pred Value"]
-precision_class3 <- cm_vote$byClass["Class: 3", "Pos Pred Value"]
-precision = (precision_class1 + precision_class2 + precision_class3)/3
-
-
-F1 = 2 * recall * precision / ( recall + precision )
-
-
+```{r}
+#| echo: TRUE
+#| code-fold: TRUE
+#| output: FALSE
+#| code-summary: "Table Print Code"
 printTable=matrix(c(round(accuracy,2),round(recall,2),
                     round(precision,2),round(F1,2)),ncol=1,
                     byrow=TRUE)
 colnames(printTable)=c('Score')
 rownames(printTable)=c('Accuracy','Recall','Precision','F1')
-
 print(printTable)
 ```
+
+
 :::
 :::
 
@@ -977,8 +1016,9 @@ print(printTable)
 ::: {.column width="50%"}
 ```{r}
 #| echo: FALSE
-#| code-fold: FALSE
+#| code-fold: TRUE
 #| output: TRUE
+#| code-summary: "Feature Importance Visualization Code"
 ctrl <- trainControl(method = "cv",  
                      number = 10) 
 
@@ -1026,21 +1066,37 @@ plot(varImp(bagged_cv), 10)
 
 ## Evaluation {.smaller}
 
-::: {.absolute top="100" left="0" width="500" height="175"}
-$\text{Accuracy}=\frac{\sum{\left(\text{Actual Label} = \text{Predicted Label}\right)}}{\text{Label Count}}$
+
+::: columns
+::: {.column width="15%"}
+$\text{Accuracy}$
+\
+\
+$\text{Recall}$
+\
+\
+$\text{Precision}$
+\
+\
+$\text{F1}$
 :::
 
-::: {.absolute top="225" left="0" width="500" height="175"}
-$\text{Recall}\quad \;=\frac{\text{True Positives}}{\text{True Positives} + \text{False Negatives}}$
+::: {.column width="85%"}
+$=\frac{\sum{\left(\text{Actual Label} = \text{Predicted Label}\right)}}{\text{Label Count}}$
+\
+\
+$=\frac{\text{True Positives}}{\text{True Positives} + \text{False Negatives}}$
+\
+\
+$=\frac{\text{True Positives}}{\text{True Positives}+\text{False Positives}}$
+\
+\
+$=\frac{2*(\text{Precision}*\text{Recall})}{\text{Precision}+\text{Recall}}$
+
+
+:::
 :::
 
-::: {.absolute top="350" left="0" width="500" height="175"}
-$\text{Precision}=\frac{\text{True Positives}}{\text{True Positives}+\text{False Positives}}$
-:::
-
-::: {.absolute top="475" left="0" width="500" height="175"}
-$\text{F1}\qquad \;=\frac{2*(\text{Precision}*\text{Recall})}{\text{Precision}+\text{Recall}}$
-:::
 
 ## Confusion Matrix and Statistics {.smaller}
 
@@ -1063,12 +1119,10 @@ library(likert)
 #| code-fold: FALSE
 #| output: TRUE
 
- 
 cm_vote <- confusionMatrix(final_pred_factor, label_test_factor)
  
 cm <- confusionMatrix(final_pred_factor, label_test_factor)
-cm
- 
+
 cm_d <- as.data.frame(cm$table)
 cm_st <-data.frame(cm$overall)
 cm_st$cm.overall <- round(cm_st$cm.overall,2)
@@ -1094,7 +1148,21 @@ plt1 <-  ggplot(data = cm_d, aes(x = Prediction , y =  Reference,
     	axis.line = element_blank(),
   )
 plt2 <-  tableGrob(cm_st)
+printTable=matrix(c(round(cm$overall['Accuracy'],2),
+                    if(cm$overall['AccuracyPValue']<0.001){"<.001"}
+                    else round(cm$overall['AccuracyPValue'],3),
+                    paste("(",round(cm$overall['AccuracyLower'],2),
+                          ",",round(cm$overall['AccuracyUpper'],2),
+                          ")",sep=""),
+                    round(cm$overall['Kappa'],2)),ncol=1,
+                    byrow=TRUE)
+colnames(printTable)=c('Score')
+rownames(printTable)=c('Accuracy','Accuracy p-value','95% CI','Kappa')
+print(printTable,quote=FALSE)
 
+cmBC<-cm$byClass
+rownames(cmBC)<-c("LC","Thr","Ext")
+print(t(round(cmBC,2)),quote=FALSE)
 
 ```
 :::
@@ -1105,8 +1173,6 @@ plt2 <-  tableGrob(cm_st)
 #| code-fold: FALSE
 #| output: TRUE
 
-
- 
 cm_vote <- confusionMatrix(final_pred_factor, label_test_factor)
  
 cm <- confusionMatrix(final_pred_factor, label_test_factor)
@@ -1148,14 +1214,11 @@ grid.arrange(plt1, nrow = 1, ncol = 1,
 #| echo: TRUE
 #| code-fold: TRUE
 #| output: FALSE
+#| code-summary: "Confusion Matrix Code"
 
-
- 
 cm_vote <- confusionMatrix(final_pred_factor, label_test_factor)
- 
 cm <- confusionMatrix(final_pred_factor, label_test_factor)
-cm
- 
+
 cm_d <- as.data.frame(cm$table)
 cm_st <-data.frame(cm$overall)
 cm_st$cm.overall <- round(cm_st$cm.overall,2)
@@ -1183,10 +1246,34 @@ plt1 <-  ggplot(data = cm_d, aes(x = Prediction , y =  Reference,
 plt2 <-  tableGrob(cm_st)
 grid.arrange(plt1, plt2, nrow = 1, ncol = 2,
          	top=textGrob("Confusion Matrix",gp=gpar(fontsize=25,font=1)))
+```
+```{r}
+#| echo: TRUE
+#| code-fold: TRUE
+#| output: FALSE
+#| code-summary: "Table Print Code"
+
+
+printTable=matrix(c(round(cm$overall['Accuracy'],2),
+                    if(cm$overall['AccuracyPValue']<0.001){"<.001"}
+                    else round(cm$overall['AccuracyPValue'],3),
+                    paste("(",round(cm$overall['AccuracyLower'],2),
+                          ",",round(cm$overall['AccuracyUpper'],2),
+                          ")",sep=""),
+                    round(cm$overall['Kappa'],2)),ncol=1,
+                    byrow=TRUE)
+colnames(printTable)=c('Score')
+rownames(printTable)=c('Accuracy','Accuracy p-value','95% CI','Kappa')
+print(printTable,quote=FALSE)
+
+cmBC<-cm$byClass
+rownames(cmBC)<-c("LC","Thr","Ext")
+print(t(round(cmBC,2)),quote=FALSE)
 
 ```
 
-## Conclusion {.smaller}
+
+# Conclusion {.smaller}
 
 -   Predictive Model with 88% Accuracy.
 -   Range was the strongest predictor of extinction.
