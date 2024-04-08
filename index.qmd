@@ -412,6 +412,7 @@ cat("Group Counts Pre-Balancing:  ",
 #| echo: TRUE
 #| code-fold: TRUE
 #| output: FALSE
+#| code-summary: "Class Balancing Code"
 
 AB <- data_train
 AB <- AB[AB$label != '3',]
@@ -465,37 +466,39 @@ class_counts <- table(data_train$label)
 ### Min-Max {.smaller}
 
 ::: columns
-::: {.column width="30%"}
+::: {.column width="35%"}
 $X_{new}=\frac{X_{old}-\min(X_{old})}{\max(X_{old})-\min(x_{old})}$
 
 ```{r}
 #| echo: FALSE
 #| code-fold: FALSE
 #| output: TRUE
+#| code-summary: "MinMax Code"
 
-features_train_1 <- as.data.frame(lapply(features_train, 
+trainMM <- as.data.frame(lapply(features_train, 
                       function(x) {(x-min(x))/(max(x)-min(x))}))
-features_test_1 <- as.data.frame(lapply(features_test, 
+testMM <- as.data.frame(lapply(features_test, 
                       function(x) {(x-min(x))/(max(x)-min(x))}))
 
-data_train_1 <- features_train_1
-data_train_1$label <- label
-class_counts_1 <- table(data_train_1$label)
+train <- trainMM
+train$label <- label
+MMCounts <- table(train$label)
 
-model_1 <- randomForest(x = data_train_1[-ncol(data_train_combined)],
-                        y = as.factor(data_train_1$label), ntree = 2)
-variable_importance_1 = importance(model_1)
-pred_comb_1 <- predict(model_1, features_test_1)
-accuracy <- sum(label_test == pred_comb_1) / length(label_test)
-label_test_factor <- as.factor(label_test)
-pred_comb_1_factor <- as.factor(pred_comb_1)
-cm <- confusionMatrix(pred_comb_1_factor, label_test_factor)
-recall <- mean(c(cm$byClass["Class: 1", "Sensitivity"], 
-                 cm$byClass["Class: 2", "Sensitivity"], 
-                 cm$byClass["Class: 3", "Sensitivity"]))
-precision <- mean(c(cm$byClass["Class: 1", "Pos Pred Value"], 
-                    cm$byClass["Class: 2", "Pos Pred Value"], 
-                    cm$byClass["Class: 3", "Pos Pred Value"]))
+MM <- randomForest(x = train[-ncol(data_train_combined)],
+                        y = as.factor(train$label), ntree = 2)
+importanceMM = importance(MM)
+PredMM <- predict(MM, testMM)
+accuracy <- sum(label_test == PredMM) / length(label_test)
+testfactorMM <- as.factor(label_test)
+PredFactorMM <- as.factor(PredMM)
+cm <- confusionMatrix(PredFactorMM, testfactorMM)
+rownames(cm$byClass)<-c("LC","Thr","Ext")
+recall <- mean(c(cm$byClass["LC", "Sensitivity"], 
+                 cm$byClass["Thr", "Sensitivity"], 
+                 cm$byClass["Ext", "Sensitivity"]))
+precision <- mean(c(cm$byClass["LC", "Pos Pred Value"], 
+                    cm$byClass["Thr", "Pos Pred Value"], 
+                    cm$byClass["Ext", "Pos Pred Value"]))
 F1 = 2 * recall * precision / ( recall + precision )
 printTable=matrix(c(round(accuracy,2),round(recall,2),
                     round(precision,2),round(F1,2)),
@@ -506,38 +509,43 @@ rownames(printTable)=c('Accuracy','Recall',
 print(printTable)
 ```
 
-- What is Min-Max
+- Min-Max Normalization maps features into the range of 0 to 1
+    - The largest value scales to 1
+    - The smallest scales to zero
+    - Features on the same scale will often predict with a higher reliability
 :::
 
-::: {.column width="70%"}
+::: {.column width="65%"}
 ```{r}
 #| echo: TRUE
 #| code-fold: TRUE
 #| output: FALSE
+#| code-summary: "MinMax Code"
 
-features_train_1 <- as.data.frame(lapply(features_train, 
+trainMM <- as.data.frame(lapply(features_train, 
                       function(x) {(x-min(x))/(max(x)-min(x))}))
-features_test_1 <- as.data.frame(lapply(features_test, 
+testMM <- as.data.frame(lapply(features_test, 
                       function(x) {(x-min(x))/(max(x)-min(x))}))
 
-data_train_1 <- features_train_1
-data_train_1$label <- label
-class_counts_1 <- table(data_train_1$label)
+train <- trainMM
+train$label <- label
+MMCounts <- table(train$label)
 
-model_1 <- randomForest(x = data_train_1[-ncol(data_train_combined)],
-                        y = as.factor(data_train_1$label), ntree = 2)
-variable_importance_1 = importance(model_1)
-pred_comb_1 <- predict(model_1, features_test_1)
-accuracy <- sum(label_test == pred_comb_1) / length(label_test)
-label_test_factor <- as.factor(label_test)
-pred_comb_1_factor <- as.factor(pred_comb_1)
-cm <- confusionMatrix(pred_comb_1_factor, label_test_factor)
-recall <- mean(c(cm$byClass["Class: 1", "Sensitivity"], 
-                 cm$byClass["Class: 2", "Sensitivity"], 
-                 cm$byClass["Class: 3", "Sensitivity"]))
-precision <- mean(c(cm$byClass["Class: 1", "Pos Pred Value"], 
-                    cm$byClass["Class: 2", "Pos Pred Value"], 
-                    cm$byClass["Class: 3", "Pos Pred Value"]))
+MM <- randomForest(x = train[-ncol(data_train_combined)],
+                        y = as.factor(train$label), ntree = 2)
+importanceMM = importance(MM)
+PredMM <- predict(MM, testMM)
+accuracy <- sum(label_test == PredMM) / length(label_test)
+testfactorMM <- as.factor(label_test)
+PredFactorMM <- as.factor(PredMM)
+cm <- confusionMatrix(PredFactorMM, testfactorMM)
+rownames(cm$byClass)<-c("LC","Thr","Ext")
+recall <- mean(c(cm$byClass["LC", "Sensitivity"], 
+                 cm$byClass["Thr", "Sensitivity"], 
+                 cm$byClass["Ext", "Sensitivity"]))
+precision <- mean(c(cm$byClass["LC", "Pos Pred Value"], 
+                    cm$byClass["Thr", "Pos Pred Value"], 
+                    cm$byClass["Ext", "Pos Pred Value"]))
 F1 = 2 * recall * precision / ( recall + precision )
 printTable=matrix(c(round(accuracy,2),round(recall,2),
                     round(precision,2),round(F1,2)),
@@ -547,37 +555,39 @@ rownames(printTable)=c('Accuracy','Recall',
                        'Precision','F1')
 print(printTable)
 ```
+
 :::
 :::
 
 ### Z-Score {.smaller}
 
 ::: columns
-::: {.column width="30%"}
+::: {.column width="35%"}
 $X_{new}=\frac{X_{old}-\bar{X}_{old}}{\sigma_{X_{old}}}$
 
 ```{r}
 #| echo: FALSE
 #| code-fold: FALSE
 #| output: TRUE
+#| code-summary: "ZScore Code"
 
-features_train_2 <- as.data.frame(lapply(features_train, 
+TrainZS <- as.data.frame(lapply(features_train, 
                       function(x) {(x - mean(x))/sd(x)}))
-features_test_2 <- as.data.frame(lapply(features_test, 
+TestZS <- as.data.frame(lapply(features_test, 
                       function(x) {(x - mean(x))/sd(x)}))
 
-data_train_2 <- features_train_2
-data_train_2$label <- label
-class_counts_2 <- table(data_train_2$label)
+train <- TrainZS
+train$label <- label
+ZSCounts <- table(train$label)
 
-model_2 <- randomForest(x = data_train_2[-ncol(data_train_combined)],
-                      y = as.factor(data_train_2$label), ntree = 2)
-variable_importance_2 = importance(model_2)
-pred_comb_2 <- predict(model_2, features_test_2)
-accuracy <- sum(label_test == pred_comb_2) / length(label_test)
+ZS <- randomForest(x = train[-ncol(data_train_combined)],
+                      y = as.factor(train$label), ntree = 2)
+ImportanceZS = importance(ZS)
+PredZS <- predict(ZS, TestZS)
+accuracy <- sum(label_test == PredZS) / length(label_test)
 label_test_factor <- as.factor(label_test)
-pred_comb_1_factor <- as.factor(pred_comb_2)
-cm <- confusionMatrix(pred_comb_1_factor, label_test_factor)
+PredFactorZS <- as.factor(PredZS)
+cm <- confusionMatrix(PredFactorZS, label_test_factor)
 recall <- mean(c(cm$byClass["Class: 1", "Sensitivity"],
                               cm$byClass["Class: 2", "Sensitivity"],
                               cm$byClass["Class: 3", "Sensitivity"]))
@@ -593,31 +603,35 @@ colnames(printTable)=c('Score')
 rownames(printTable)=c('Accuracy','Recall','Precision','F1')
 print(printTable)
 ```
+- Z-Score Scaling scales features to have a mean of zero and standard deviation of 1
+    - In this dataset, Range has a much different range between the 3 groups
+    - This type of normalization reduces the effect of the difference on the model
 :::
 
-::: {.column width="70%"}
+::: {.column width="65%"}
 ```{r}
 #| echo: TRUE
 #| code-fold: TRUE
 #| output: FALSE
+#| code-summary: "ZScore Code"
 
-features_train_2 <- as.data.frame(lapply(features_train, 
+TrainZS <- as.data.frame(lapply(features_train, 
                       function(x) {(x - mean(x))/sd(x)}))
-features_test_2 <- as.data.frame(lapply(features_test, 
+TestZS <- as.data.frame(lapply(features_test, 
                       function(x) {(x - mean(x))/sd(x)}))
 
-data_train_2 <- features_train_2
-data_train_2$label <- label
-class_counts_2 <- table(data_train_2$label)
+train <- TrainZS
+train$label <- label
+ZSCounts <- table(train$label)
 
-model_2 <- randomForest(x = data_train_2[-ncol(data_train_combined)],
-                      y = as.factor(data_train_2$label), ntree = 2)
-variable_importance_2 = importance(model_2)
-pred_comb_2 <- predict(model_2, features_test_2)
-accuracy <- sum(label_test == pred_comb_2) / length(label_test)
+ZS <- randomForest(x = train[-ncol(data_train_combined)],
+                      y = as.factor(train$label), ntree = 2)
+ImportanceZS = importance(ZS)
+PredZS <- predict(ZS, TestZS)
+accuracy <- sum(label_test == PredZS) / length(label_test)
 label_test_factor <- as.factor(label_test)
-pred_comb_1_factor <- as.factor(pred_comb_2)
-cm <- confusionMatrix(pred_comb_1_factor, label_test_factor)
+PredFactorZS <- as.factor(PredZS)
+cm <- confusionMatrix(PredFactorZS, label_test_factor)
 recall <- mean(c(cm$byClass["Class: 1", "Sensitivity"],
                               cm$byClass["Class: 2", "Sensitivity"],
                               cm$byClass["Class: 3", "Sensitivity"]))
@@ -639,32 +653,33 @@ print(printTable)
 ### Max Absolute Value {.smaller}
 
 ::: columns
-::: {.column width="30%"}
+::: {.column width="35%"}
 $X_{new}=\frac{X_{old}}{\max(|X_{old}|)}$
 
 ```{r}
 #| echo: FALSE
 #| code-fold: FALSE
 #| output: TRUE
+#| code-summary: "Max Absolute Value Code"
 
-features_train_3 <- as.data.frame(lapply(features_train, 
+TrainMAV <- as.data.frame(lapply(features_train, 
                        function(x) {x / max(abs(x))}))
-features_test_3 <- as.data.frame(lapply(features_test, 
+TestMAV <- as.data.frame(lapply(features_test, 
                         function(x) {x / max(abs(x))}))
 
-data_train_3 <- features_train_3
-data_train_3$label <- label
-class_counts_3 <- table(data_train_3$label)
+train <- TrainMAV
+train$label <- label
+MAVCounts <- table(train$label)
 
-model_3 <- randomForest(x = data_train_3[-ncol(data_train_combined)], 
-                        y = as.factor(data_train_3$label), 
+MAV <- randomForest(x = train[-ncol(data_train_combined)], 
+                        y = as.factor(train$label), 
                         ntree = 2)
-variable_importance_3 = importance(model_3)
-pred_comb_3 <- predict(model_3, features_test_3)
-accuracy <- sum(label_test == pred_comb_3) / length(label_test)
+ImportanceMAV = importance(MAV)
+PredMAV <- predict(MAV, TestMAV)
+accuracy <- sum(label_test == PredMAV) / length(label_test)
 label_test_factor <- as.factor(label_test)
-pred_comb_1_factor <- as.factor(pred_comb_3)
-cm <- confusionMatrix(pred_comb_1_factor, label_test_factor)
+PredFactorMAV <- as.factor(PredMAV)
+cm <- confusionMatrix(PredFactorMAV, label_test_factor)
 recall <- mean(c(cm$byClass["Class: 1", "Sensitivity"],
                  cm$byClass["Class: 2", "Sensitivity"],
                  cm$byClass["Class: 3", "Sensitivity"]))
@@ -679,32 +694,36 @@ colnames(printTable)=c('Score')
 rownames(printTable)=c('Accuracy','Recall','Precision','F1')
 print(printTable)
 ```
+- Max Absolute Value Normalization is a special case of Min-Max Normalization
+    - If all values are positive, normalization is simply a ratio of value to max value
+    - May only be used if all values for the feature are positive
 :::
 
-::: {.column width="70%"}
+::: {.column width="65%"}
 ```{r}
 #| echo: TRUE
 #| code-fold: TRUE
 #| output: FALSE
+#| code-summary: "Max Absolute Value Code"
 
-features_train_3 <- as.data.frame(lapply(features_train, 
+TrainMAV <- as.data.frame(lapply(features_train, 
                        function(x) {x / max(abs(x))}))
-features_test_3 <- as.data.frame(lapply(features_test, 
+TestMAV <- as.data.frame(lapply(features_test, 
                         function(x) {x / max(abs(x))}))
 
-data_train_3 <- features_train_3
-data_train_3$label <- label
-class_counts_3 <- table(data_train_3$label)
+train <- TrainMAV
+train$label <- label
+MAVCounts <- table(train$label)
 
-model_3 <- randomForest(x = data_train_3[-ncol(data_train_combined)], 
-                        y = as.factor(data_train_3$label), 
+MAV <- randomForest(x = train[-ncol(data_train_combined)], 
+                        y = as.factor(train$label), 
                         ntree = 2)
-variable_importance_3 = importance(model_3)
-pred_comb_3 <- predict(model_3, features_test_3)
-accuracy <- sum(label_test == pred_comb_3) / length(label_test)
+ImportanceMAV = importance(MAV)
+PredMAV <- predict(MAV, TestMAV)
+accuracy <- sum(label_test == PredMAV) / length(label_test)
 label_test_factor <- as.factor(label_test)
-pred_comb_1_factor <- as.factor(pred_comb_3)
-cm <- confusionMatrix(pred_comb_1_factor, label_test_factor)
+PredFactorMAV <- as.factor(PredMAV)
+cm <- confusionMatrix(PredFactorMAV, label_test_factor)
 recall <- mean(c(cm$byClass["Class: 1", "Sensitivity"],
                  cm$byClass["Class: 2", "Sensitivity"],
                  cm$byClass["Class: 3", "Sensitivity"]))
@@ -725,31 +744,32 @@ print(printTable)
 ### L1 Norm {.smaller}
 
 ::: columns
-::: {.column width="30%"}
-$X_{new}=\frac{X_{old}-\min(X_{old})}{\max(X_{old})-\min(x_{old})}$
+::: {.column width="35%"}
+$X_{new}=\frac{X_{old}}{\sum(|X_{old}|)}$
 
 ```{r}
 #| echo: FALSE
 #| code-fold: FALSE
 #| output: TRUE
+#| code-summary: "L1 Code"
 
-features_train_4 <- as.data.frame(lapply(features_train, 
+trainL1 <- as.data.frame(lapply(features_train, 
                        function(x) {x / sum(abs(x))}))
-features_test_4 <- as.data.frame(lapply(features_test, 
+TestL1 <- as.data.frame(lapply(features_test, 
                        function(x) {x / sum(abs(x))}))
 
-data_train_4 <- features_train_4
-data_train_4$label <- label
-class_counts_4 <- table(data_train_4$label)
+train <- trainL1
+train$label <- label
+L1Counts <- table(train$label)
 
-model_4 <- randomForest(x = data_train_4[-ncol(data_train_combined)], 
-                        y = as.factor(data_train_4$label), ntree = 2)
-variable_importance_4 = importance(model_4)
-pred_comb_4 <- predict(model_4, features_test_4)
-accuracy <- sum(label_test == pred_comb_4) / length(label_test)
+L1 <- randomForest(x = train[-ncol(data_train_combined)], 
+                        y = as.factor(train$label), ntree = 2)
+L1Importance = importance(L1)
+PredL1 <- predict(L1, TestL1)
+accuracy <- sum(label_test == PredL1) / length(label_test)
 label_test_factor <- as.factor(label_test)
-pred_comb_1_factor <- as.factor(pred_comb_4)
-cm <- confusionMatrix(pred_comb_1_factor, label_test_factor)
+PredFactorL1 <- as.factor(PredL1)
+cm <- confusionMatrix(PredFactorL1, label_test_factor)
 recall <- mean(c(cm$byClass["Class: 1", "Sensitivity"],
                               cm$byClass["Class: 2", "Sensitivity"],
                               cm$byClass["Class: 3", "Sensitivity"]))
@@ -764,31 +784,35 @@ colnames(printTable)=c('Score')
 rownames(printTable)=c('Accuracy','Recall','Precision','F1')
 print(printTable)
 ```
+- L1 Normalization is similar to Max Absolute Value Normalization
+    - Rather than a ratio of current value to Max Absolute Value, L1 normalization is a ratio of current value to the sum of absolute values.
+    - When complete, the sum of absolute values will equal 1
 :::
 
-::: {.column width="70%"}
+::: {.column width="65%"}
 ```{r}
 #| echo: TRUE
 #| code-fold: TRUE
 #| output: FALSE
+#| code-summary: "L1 Code"
 
-features_train_4 <- as.data.frame(lapply(features_train, 
+trainL1 <- as.data.frame(lapply(features_train, 
                        function(x) {x / sum(abs(x))}))
-features_test_4 <- as.data.frame(lapply(features_test, 
+TestL1 <- as.data.frame(lapply(features_test, 
                        function(x) {x / sum(abs(x))}))
 
-data_train_4 <- features_train_4
-data_train_4$label <- label
-class_counts_4 <- table(data_train_4$label)
+train <- trainL1
+train$label <- label
+L1Counts <- table(train$label)
 
-model_4 <- randomForest(x = data_train_4[-ncol(data_train_combined)], 
-                        y = as.factor(data_train_4$label), ntree = 2)
-variable_importance_4 = importance(model_4)
-pred_comb_4 <- predict(model_4, features_test_4)
-accuracy <- sum(label_test == pred_comb_4) / length(label_test)
+L1 <- randomForest(x = train[-ncol(data_train_combined)], 
+                        y = as.factor(train$label), ntree = 2)
+L1Importance = importance(L1)
+PredL1 <- predict(L1, TestL1)
+accuracy <- sum(label_test == PredL1) / length(label_test)
 label_test_factor <- as.factor(label_test)
-pred_comb_1_factor <- as.factor(pred_comb_4)
-cm <- confusionMatrix(pred_comb_1_factor, label_test_factor)
+PredFactorL1 <- as.factor(PredL1)
+cm <- confusionMatrix(PredFactorL1, label_test_factor)
 recall <- mean(c(cm$byClass["Class: 1", "Sensitivity"],
                               cm$byClass["Class: 2", "Sensitivity"],
                               cm$byClass["Class: 3", "Sensitivity"]))
@@ -809,31 +833,32 @@ print(printTable)
 ### L2 Norm {.smaller}
 
 ::: columns
-::: {.column width="30%"}
-$X_{new}=\frac{X_{old}-\bar{X}_{old}}{\sigma_{X_{old}}}$
+::: {.column width="35%"}
+$X_{new}=\frac{X_{old}}{\sqrt{\sum{X_{old}^2}}}$
 
 ```{r}
 #| echo: FALSE
 #| code-fold: FALSE
 #| output: TRUE
+#| code-summary: "L2 Code"
 
-features_train_5 <- as.data.frame(lapply(features_train, 
+TrainL2 <- as.data.frame(lapply(features_train, 
                        function(x) {x / sqrt(sum(x^2))}))
-features_test_5 <- as.data.frame(lapply(features_test, 
+TestL2 <- as.data.frame(lapply(features_test, 
                        function(x) {x / sqrt(sum(x^2))}))
 
-data_train_5 <- features_train_5
-data_train_5$label <- label
-class_counts_5 <- table(data_train_5$label)
+train <- TrainL2
+train$label <- label
+L2Counts <- table(train$label)
 
-model_5 <- randomForest(x = data_train_5[-ncol(data_train_combined)], 
-                        y = as.factor(data_train_5$label), ntree = 2)
-variable_importance_5 = importance(model_5)
-pred_comb_5 <- predict(model_5, features_test_5)
-accuracy <- sum(label_test == pred_comb_5) / length(label_test)
+L2 <- randomForest(x = train[-ncol(data_train_combined)], 
+                        y = as.factor(train$label), ntree = 2)
+L2Importance = importance(L2)
+PredL2 <- predict(L2, TestL2)
+accuracy <- sum(label_test == PredL2) / length(label_test)
 label_test_factor <- as.factor(label_test)
-pred_comb_1_factor <- as.factor(pred_comb_5)
-cm <- confusionMatrix(pred_comb_1_factor, label_test_factor)
+PredFactorL2 <- as.factor(PredL2)
+cm <- confusionMatrix(PredFactorL2, label_test_factor)
 
 recall <- mean(c(cm$byClass["Class: 1", "Sensitivity"],
                  cm$byClass["Class: 2", "Sensitivity"],
@@ -853,31 +878,38 @@ rownames(printTable)=c('Accuracy','Recall','Precision','F1')
 
 print(printTable)
 ```
+
+- L2 Normalization is based on distance from current value to the origin
+    - Ratio of current value to the distance from the current value to the origin
+    - Outliers have a stronger effect with L2 normalization
+    
+    
 :::
 
-::: {.column width="70%"}
+::: {.column width="65%"}
 ```{r}
 #| echo: TRUE
 #| code-fold: TRUE
 #| output: FALSE
+#| code-summary: "L2 Code"
 
-features_train_5 <- as.data.frame(lapply(features_train, 
+TrainL2 <- as.data.frame(lapply(features_train, 
                        function(x) {x / sqrt(sum(x^2))}))
-features_test_5 <- as.data.frame(lapply(features_test, 
+TestL2 <- as.data.frame(lapply(features_test, 
                        function(x) {x / sqrt(sum(x^2))}))
 
-data_train_5 <- features_train_5
-data_train_5$label <- label
-class_counts_5 <- table(data_train_5$label)
+train <- TrainL2
+train$label <- label
+L2Counts <- table(train$label)
 
-model_5 <- randomForest(x = data_train_5[-ncol(data_train_combined)], 
-                        y = as.factor(data_train_5$label), ntree = 2)
-variable_importance_5 = importance(model_5)
-pred_comb_5 <- predict(model_5, features_test_5)
-accuracy <- sum(label_test == pred_comb_5) / length(label_test)
+L2 <- randomForest(x = train[-ncol(data_train_combined)], 
+                        y = as.factor(train$label), ntree = 2)
+L2Importance = importance(L2)
+PredL2 <- predict(L2, TestL2)
+accuracy <- sum(label_test == PredL2) / length(label_test)
 label_test_factor <- as.factor(label_test)
-pred_comb_1_factor <- as.factor(pred_comb_5)
-cm <- confusionMatrix(pred_comb_1_factor, label_test_factor)
+PredFactorL2 <- as.factor(PredL2)
+cm <- confusionMatrix(PredFactorL2, label_test_factor)
 
 recall <- mean(c(cm$byClass["Class: 1", "Sensitivity"],
                  cm$byClass["Class: 2", "Sensitivity"],
@@ -918,11 +950,11 @@ print(printTable)
 #| echo: FALSE
 #| code-fold: FALSE
 #| output: TRUE
-n <- length(pred_comb_1)
+n <- length(PredMM)
 final_pred <-rep(NA, n)
 for(i in 1:n) {
-   preds <- c(pred_comb_1[i], pred_comb_2[i], pred_comb_3[i], 
-              pred_comb_4[i], pred_comb_5[i])
+   preds <- c(PredMM[i], PredZS[i], PredMAV[i], 
+              PredL1[i], PredL2[i])
    final_pred[i] <-as.numeric(names(which.max(table(preds))))
 }
 
@@ -931,7 +963,7 @@ accuracy <-sum(label_test == final_pred)/length(label_test)
 final_pred_factor <-as.factor(final_pred)
 label_test_factor <-as.factor(label_test)
 cm_vote <-confusionMatrix(final_pred_factor, label_test_factor)
-
+rownames(cm_vote$byClass)<-c("LC","Thr","Ext")
 sensitivity_class1 <-cm_vote$byClass["LC", "Sensitivity"]
 sensitivity_class2 <-cm_vote$byClass["Thr", "Sensitivity"]
 sensitivity_class3 <-cm_vote$byClass["Ext", "Sensitivity"]
@@ -965,11 +997,11 @@ print(printTable)
 #| code-summary: "Prediction Code"
 
 
-n <- length(pred_comb_1)
+n <- length(PredMM)
 final_pred <-rep(NA, n)
 for(i in 1:n) {
-   preds <- c(pred_comb_1[i], pred_comb_2[i], pred_comb_3[i], 
-              pred_comb_4[i], pred_comb_5[i])
+   preds <- c(PredMM[i], PredZS[i], PredMAV[i], 
+              PredL1[i], PredL2[i])
    final_pred[i] <-as.numeric(names(which.max(table(preds))))
 }
 
@@ -978,7 +1010,7 @@ accuracy <-sum(label_test == final_pred)/length(label_test)
 final_pred_factor <-as.factor(final_pred)
 label_test_factor <-as.factor(label_test)
 cm_vote <-confusionMatrix(final_pred_factor, label_test_factor)
-
+rownames(cm_vote$byClass)<-c("LC","Thr","Ext")
 sensitivity_class1 <-cm_vote$byClass["LC", "Sensitivity"]
 sensitivity_class2 <-cm_vote$byClass["Thr", "Sensitivity"]
 sensitivity_class3 <-cm_vote$byClass["Ext", "Sensitivity"]
@@ -1018,7 +1050,7 @@ print(printTable)
 #| echo: FALSE
 #| code-fold: TRUE
 #| output: TRUE
-#| code-summary: "Feature Importance Visualization Code"
+
 ctrl <- trainControl(method = "cv",  
                      number = 10) 
 
@@ -1042,8 +1074,10 @@ plot(varImp(bagged_cv), 10)
 ::: {.column width="50%"}
 ```{r}
 #| echo: TRUE
-#| code-fold: FALSE
+#| code-fold: TRUE
 #| output: FALSE
+#| code-summary: "Feature Importance Visualization Code"
+
 ctrl <- trainControl(method = "cv",  
                      number = 10) 
 
@@ -1079,9 +1113,10 @@ $\text{Precision}$
 \
 \
 $\text{F1}$
+
 :::
 
-::: {.column width="85%"}
+::: {.column width="35%"}
 $=\frac{\sum{\left(\text{Actual Label} = \text{Predicted Label}\right)}}{\text{Label Count}}$
 \
 \
@@ -1092,10 +1127,129 @@ $=\frac{\text{True Positives}}{\text{True Positives}+\text{False Positives}}$
 \
 \
 $=\frac{2*(\text{Precision}*\text{Recall})}{\text{Precision}+\text{Recall}}$
+\
+```{r}
+#| echo: FALSE
+#| code-fold: FALSE
+#| output: TRUE
+#| code-summary: "Evaluation Metrics Code"
+n <- length(PredMM)
+final_pred <-rep(NA, n)
+for(i in 1:n) {
+   preds <- c(PredMM[i], PredZS[i], PredMAV[i],
+              PredL1[i], PredL2[i])
+   final_pred[i] <-as.numeric(names(
+                    which.max(table(preds))))
+}
+
+accuracy <-sum(label_test == final_pred)/
+            length(label_test)
+
+final_pred_factor<-as.factor(final_pred)
+label_test_factor<-as.factor(label_test)
+cm_vote <-confusionMatrix(final_pred_factor,
+                          label_test_factor)
+rownames(cm_vote$byClass)<-c("LC","Thr","Ext")
+sensitivity_class1<-cm_vote$byClass[
+                    "LC", "Sensitivity"]
+sensitivity_class2<-cm_vote$byClass[
+                    "Thr", "Sensitivity"]
+sensitivity_class3<-cm_vote$byClass[
+                    "Ext",  "Sensitivity"]
+recall =(sensitivity_class1+sensitivity_class2+
+           sensitivity_class3)/3
+
+precision_class1<-cm_vote$byClass[
+                  "LC",  "Pos Pred Value"]
+precision_class2<-cm_vote$byClass[
+                  "Thr",  "Pos Pred Value"]
+precision_class3<-cm_vote$byClass[
+                  "Ext", "Pos Pred Value"]
+precision=(precision_class1+precision_class2+
+             precision_class3)/3
+
+F1=2*recall*precision/(recall+precision)
+
+printTable=matrix(c(round(accuracy,2),
+                    round(recall,2),
+                    round(precision,2),
+                    round(F1,2)),ncol=1,
+                    byrow=TRUE)
+colnames(printTable)=c('Score')
+rownames(printTable)=c('Accuracy','Recall',
+                       'Precision','F1')
+print(printTable)
+
+
+```
+:::
+::: {.column width="50%"}
+\
+```{r}
+#| echo: TRUE
+#| code-fold: TRUE
+#| output: FALSE
+#| code-summary: "Evaluation Metrics Code"
+n <- length(PredMM)
+final_pred <-rep(NA, n)
+for(i in 1:n) {
+   preds <- c(PredMM[i], PredZS[i], PredMAV[i],
+              PredL1[i], PredL2[i])
+   final_pred[i] <-as.numeric(names(
+                    which.max(table(preds))))
+}
+
+accuracy <-sum(label_test == final_pred)/
+            length(label_test)
+
+final_pred_factor<-as.factor(final_pred)
+label_test_factor<-as.factor(label_test)
+cm_vote <-confusionMatrix(final_pred_factor,
+                          label_test_factor)
+rownames(cm_vote$byClass)<-c("LC","Thr","Ext")
+sensitivity_class1<-cm_vote$byClass[
+                    "LC", "Sensitivity"]
+sensitivity_class2<-cm_vote$byClass[
+                    "Thr", "Sensitivity"]
+sensitivity_class3<-cm_vote$byClass[
+                    "Ext",  "Sensitivity"]
+recall =(sensitivity_class1+sensitivity_class2+
+           sensitivity_class3)/3
+
+precision_class1<-cm_vote$byClass[
+                  "LC",  "Pos Pred Value"]
+precision_class2<-cm_vote$byClass[
+                  "Thr",  "Pos Pred Value"]
+precision_class3<-cm_vote$byClass[
+                  "Ext", "Pos Pred Value"]
+precision=(precision_class1+precision_class2+
+             precision_class3)/3
+
+F1=2*recall*precision/(recall+precision)
+
+printTable=matrix(c(round(accuracy,2),
+                    round(recall,2),
+                    round(precision,2),
+                    round(F1,2)),ncol=1,
+                    byrow=TRUE)
+colnames(printTable)=c('Score')
+rownames(printTable)=c('Accuracy','Recall',
+                       'Precision','F1')
+print(printTable)
+
+```
 
 
 :::
+
 :::
+
+
+
+
+
+
+
 
 
 ## Confusion Matrix and Statistics {.smaller}
