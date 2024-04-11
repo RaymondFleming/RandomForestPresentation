@@ -112,6 +112,9 @@ species_test <- subset(dataP2, split2 == "FALSE")
 ```{r}
 #| echo: FALSE
 #| code-fold: FALSE
+#| output: TRUE
+#| fig-width: 7
+#| fig-height: 6
 
 m3 <- rpart(
   formula = Group~ LF + GF + Biomes + Range +
@@ -179,6 +182,10 @@ data <- read.csv("All_threat_data.csv")
 ```{r}
 #| echo: FALSE
 #| code-fold: FALSE
+#| output: TRUE
+#| fig-width: 7
+#| fig-height: 6
+
 ggplot(data = data, aes(x = Group, y = Range, fill = Group)) +
   geom_boxplot() +
   theme_bw() +
@@ -190,7 +197,7 @@ ggplot(data = data, aes(x = Group, y = Range, fill = Group)) +
 ```{r}
 #| echo: TRUE
 #| code-fold: TRUE
-#| output: false
+#| output: FALSE
 #| code-summary: "Distribution Visualization Code"
 
 ggplot(data = data, aes(x = Status, y = Range, fill = Status)) +
@@ -229,6 +236,9 @@ train<-read.csv("All_threat_data.csv")
 ```{r}
 #| echo: FALSE
 #| code-fold: TRUE
+#| output: TRUE
+#| fig-width: 7
+#| fig-height: 6
 
 corrDF <- train %>% mutate(Range=ntile(Range, n=20))
 corrDF <- corrDF %>% mutate(across(c("Group","LF","GF","Range","Biomes","Range",
@@ -244,7 +254,7 @@ corrplot::corrplot(DescTools::PairApply(corrDF,DescTools::CramerV), type='lower'
 ```{r}
 #| echo: TRUE
 #| code-fold: TRUE
-#| output: false
+#| output: FALSE
 #| code-summary: "Association Visualization Code"
 
 corrDF <- train %>% mutate(Range=ntile(Range, n=20))
@@ -263,7 +273,7 @@ corrplot::corrplot(DescTools::PairApply(corrDF,DescTools::CramerV), type='lower'
 ```{r}
 #| echo: FALSE
 #| code-fold: FALSE
-#| output: false
+#| output: FALSE
 
 original_data <- read_csv("All_threat_data.csv")
 kable(head(original_data, 10))
@@ -1050,6 +1060,8 @@ print(printTable)
 #| echo: FALSE
 #| code-fold: TRUE
 #| output: TRUE
+#| fig-width: 7
+#| fig-height: 5
 
 ctrl <- trainControl(method = "cv",  
                      number = 10) 
@@ -1273,6 +1285,7 @@ library(likert)
 #| code-fold: FALSE
 #| output: TRUE
 
+
 cm_vote <- confusionMatrix(final_pred_factor, label_test_factor)
  
 cm <- confusionMatrix(final_pred_factor, label_test_factor)
@@ -1326,6 +1339,8 @@ print(t(round(cmBC,2)),quote=FALSE)
 #| echo: FALSE
 #| code-fold: FALSE
 #| output: TRUE
+#| fig-width: 7
+#| fig-height: 5
 
 cm_vote <- confusionMatrix(final_pred_factor, label_test_factor)
  
