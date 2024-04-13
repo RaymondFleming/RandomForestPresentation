@@ -1,5 +1,5 @@
 ---
-title: "Random Forest"
+title: "Predicting Plant Extinctions Using the Random Forest Algorithm"
 author: "Kristen Monaco, Praya Cheekapara, Raymond Fleming, Teng Ma"
 format: 
   revealjs: 
@@ -10,7 +10,7 @@ output: revealjs::revealjs_presentation
 
 # Introduction and Lit Review
 
-## Random Forest Introduction {.smaller}
+## Introduction {.smaller}
 
 -   Ensemble machine learning method based on a large number of decision trees voting to predict a classification
 -   Benefits compared to decision tree:
@@ -44,9 +44,10 @@ output: revealjs::revealjs_presentation
 :::
 :::
 
-## Lit Review
+## Literature Review
 
-- Lit Review
+-   Feature Selection can be performed by training a large, unpruned random forest then feature importance can be used to help with identifying the most important features [@jaiswal2017application], leading to a reduction in computational requirements for a similar result as demonstrated in selecting features for human activity recognition [@uddin2015guided]
+    -   This method can be used to select features for a Random Forest but could also be used to assist in feature selection for other models as well
 
 # Methods {.smaller}
 
@@ -71,7 +72,7 @@ output: revealjs::revealjs_presentation
     -   Information about feature importance may be saved and applies in future iterations
     -   Even with automated random feature selection, feature selection and engineering prior to training may improve performance
 
-## Decision Tree and Cross Validation {.smaller}
+## Decision Tree {.smaller}
 
 ```{r}
 library(readr)
@@ -102,10 +103,8 @@ species_test <- subset(dataP2, split2 == "FALSE")
 
 ::: columns
 ::: {.column width="50%"}
--   Validation of performance of model
-    -   Resampling method similar to out of bag estimation
-    -   Allows estimation of the general performance of a model
 -   Single decision trees may be visualized to help modelers understand the dataset
+    -   Important features for a single decision tree will likely be important for a full model
 :::
 
 ::: {.column width="50%"}
@@ -146,12 +145,24 @@ rpart.plot(m3)
  rpart.plot(m3)
 ```
 
+## Validation Metrics
+
+-   Validation of performance of model
+    -   Resampling method similar to out of bag estimation
+    -   Allows estimation of the general performance of a model
+
 # Data {.smaller}
 
+![](plantdiversity.png){absolute top=400 left = 400 width=200 height = 300}
+
+
 -   South African Red List
+
     -   Data about plants with their habitat, traits, distribution, and factors influencing their current threatened/extinct status
+
 -   Purpose
-    -   Predict whether or not an unknown plant is threatened based on the above characteristics
+
+    -   Predict whether or not an unknown plant is extinct based on the above characteristics
 
 ## Distribution of Range by Conservation Status {.smaller}
 
@@ -228,6 +239,7 @@ library(caret)
 library(randomForest)
 library(corrplot)
 library(DescTools)
+library(ggcorrplot)
 
 train<-read.csv("All_threat_data.csv")
 
@@ -237,16 +249,19 @@ train<-read.csv("All_threat_data.csv")
 #| echo: FALSE
 #| code-fold: TRUE
 #| output: TRUE
-#| fig-width: 7
+#| fig-width: 8
 #| fig-height: 6
+#| output-location: fragment
 
 corrDF <- train %>% mutate(Range=ntile(Range, n=20))
-corrDF <- corrDF %>% mutate(across(c("Group","LF","GF","Range","Biomes","Range",
-                                     "Habitat_degradation","Habitat_loss",
-                                     "IAS","Other","Over_exploitation",
-                                     "Pollution","Unknown"),as_factor))
+corrDF <- 
+corrDF <- corrDF %>% select(!GenSpec) %>% mutate(across(c("Group","LF","GF","Range",
+                                     "Biomes","Range","Habitat_degradation",
+                                     "Habitat_loss","IAS","Other",
+                                     "Over_exploitation","Pollution","Unknown"),
+                                     as_factor))
 
-corrplot::corrplot(DescTools::PairApply(corrDF,DescTools::CramerV), type='lower')
+ggcorrplot::ggcorrplot(DescTools::PairApply(corrDF,DescTools::CramerV), type='lower')
 ```
 :::
 :::
@@ -258,18 +273,20 @@ corrplot::corrplot(DescTools::PairApply(corrDF,DescTools::CramerV), type='lower'
 #| code-summary: "Association Visualization Code"
 
 corrDF <- train %>% mutate(Range=ntile(Range, n=20))
-corrDF <- corrDF %>% mutate(across(c("Group","LF","GF","Range","Biomes","Range",
-                                     "Habitat_degradation","Habitat_loss",
-                                     "IAS","Other","Over_exploitation",
-                                     "Pollution","Unknown"),as_factor))
+corrDF <- 
+corrDF <- corrDF %>% select(!GenSpec) %>% mutate(across(c("Group","LF","GF","Range",
+                                     "Biomes","Range","Habitat_degradation",
+                                     "Habitat_loss","IAS","Other",
+                                     "Over_exploitation","Pollution","Unknown"),
+                                     as_factor))
 
-corrplot::corrplot(DescTools::PairApply(corrDF,DescTools::CramerV), type='lower')
+ggcorrplot::ggcorrplot(DescTools::PairApply(corrDF,DescTools::CramerV), type='lower')
 ```
-
 
 # Analysis and Results
 
 ## Data Preparation {.smaller}
+
 ```{r}
 #| echo: FALSE
 #| code-fold: FALSE
@@ -282,13 +299,14 @@ encode_data <- read_csv("process.csv")
 kable(head(encode_data, 10))
 data <- read.csv("process.csv")
 ```
+
 ::: columns
 ::: {.column width="50%"}
 -   Preprocessing
     -   Encode categorical features into numerical / factor features
-    -   Split the training set into a training and test set, 
+    -   Split the training set into a training and test set,
     -   Minimize class imbalance
-    
+
 ```{r}
 #| echo: FALSE
 #| code-fold: FALSE
@@ -374,11 +392,7 @@ print(printFactors,quote=FALSE)
 :::
 :::
 
-
-
-
 ## Class Balancing {.smaller}
-
 
 ::: columns
 ::: {.column width="40%"}
@@ -450,8 +464,6 @@ cat("Group Counts Pre-Balancing:  ",
 :::
 :::
 
-
-
 ```{r}
 #| echo: FALSE
 #| code-fold: FALSE
@@ -519,10 +531,10 @@ rownames(printTable)=c('Accuracy','Recall',
 print(printTable)
 ```
 
-- Min-Max Normalization maps features into the range of 0 to 1
-    - The largest value scales to 1
-    - The smallest scales to zero
-    - Features on the same scale will often predict with a higher reliability
+-   Min-Max Normalization maps features into the range of 0 to 1
+    -   The largest value scales to 1
+    -   The smallest scales to zero
+    -   Features on the same scale will often predict with a higher reliability
 :::
 
 ::: {.column width="65%"}
@@ -565,7 +577,6 @@ rownames(printTable)=c('Accuracy','Recall',
                        'Precision','F1')
 print(printTable)
 ```
-
 :::
 :::
 
@@ -613,9 +624,10 @@ colnames(printTable)=c('Score')
 rownames(printTable)=c('Accuracy','Recall','Precision','F1')
 print(printTable)
 ```
-- Z-Score Scaling scales features to have a mean of zero and standard deviation of 1
-    - In this dataset, Range has a much different range between the 3 groups
-    - This type of normalization reduces the effect of the difference on the model
+
+-   Z-Score Scaling scales features to have a mean of zero and standard deviation of 1
+    -   In this dataset, Range has a much different range between the 3 groups
+    -   This type of normalization reduces the effect of the difference on the model
 :::
 
 ::: {.column width="65%"}
@@ -704,9 +716,10 @@ colnames(printTable)=c('Score')
 rownames(printTable)=c('Accuracy','Recall','Precision','F1')
 print(printTable)
 ```
-- Max Absolute Value Normalization is a special case of Min-Max Normalization
-    - If all values are positive, normalization is simply a ratio of value to max value
-    - May only be used if all values for the feature are positive
+
+-   Max Absolute Value Normalization is a special case of Min-Max Normalization
+    -   If all values are positive, normalization is simply a ratio of value to max value
+    -   May only be used if all values for the feature are positive
 :::
 
 ::: {.column width="65%"}
@@ -794,9 +807,10 @@ colnames(printTable)=c('Score')
 rownames(printTable)=c('Accuracy','Recall','Precision','F1')
 print(printTable)
 ```
-- L1 Normalization is similar to Max Absolute Value Normalization
-    - Rather than a ratio of current value to Max Absolute Value, L1 normalization is a ratio of current value to the sum of absolute values.
-    - When complete, the sum of absolute values will equal 1
+
+-   L1 Normalization is similar to Max Absolute Value Normalization
+    -   Rather than a ratio of current value to Max Absolute Value, L1 normalization is a ratio of current value to the sum of absolute values.
+    -   When complete, the sum of absolute values will equal 1
 :::
 
 ::: {.column width="65%"}
@@ -889,11 +903,9 @@ rownames(printTable)=c('Accuracy','Recall','Precision','F1')
 print(printTable)
 ```
 
-- L2 Normalization is based on distance from current value to the origin
-    - Ratio of current value to the distance from the current value to the origin
-    - Outliers have a stronger effect with L2 normalization
-    
-    
+-   L2 Normalization is based on distance from current value to the origin
+    -   Ratio of current value to the distance from the current value to the origin
+    -   Outliers have a stronger effect with L2 normalization
 :::
 
 ::: {.column width="65%"}
@@ -995,8 +1007,7 @@ print(printTable)
 
 ```
 
-- Prediction using a combination of trees leads to a better accuracy on all metrics
-
+-   Prediction using a combination of trees leads to a better accuracy on all metrics
 :::
 
 ::: {.column width="70%"}
@@ -1047,8 +1058,6 @@ colnames(printTable)=c('Score')
 rownames(printTable)=c('Accuracy','Recall','Precision','F1')
 print(printTable)
 ```
-
-
 :::
 :::
 
@@ -1078,9 +1087,10 @@ bagged_cv <- train(
  
 plot(varImp(bagged_cv), 10) 
 ```
-- Range is the most important feature to predict Group Status
-    - Habitat Loss and Growth Form are also important features
-    - Life Form, Other, and Unknown are unimportant for prediction
+
+-   Range is the most important feature to predict Group Status
+    -   Habitat Loss and Growth Form are also important features
+    -   Life Form, Other, and Unknown are unimportant for prediction
 :::
 
 ::: {.column width="50%"}
@@ -1112,34 +1122,26 @@ plot(varImp(bagged_cv), 10)
 
 ## Evaluation {.smaller}
 
-
 ::: columns
 ::: {.column width="15%"}
-$\text{Accuracy}$
+$\text{Accuracy}$\
 \
+$\text{Recall}$\
 \
-$\text{Recall}$
-\
-\
-$\text{Precision}$
-\
+$\text{Precision}$\
 \
 $\text{F1}$
-
 :::
 
 ::: {.column width="35%"}
-$=\frac{\sum{\left(\text{Actual Label} = \text{Predicted Label}\right)}}{\text{Label Count}}$
+$=\frac{\sum{\left(\text{Actual Label} = \text{Predicted Label}\right)}}{\text{Label Count}}$\
 \
+$=\frac{\text{True Positives}}{\text{True Positives} + \text{False Negatives}}$\
 \
-$=\frac{\text{True Positives}}{\text{True Positives} + \text{False Negatives}}$
+$=\frac{\text{True Positives}}{\text{True Positives}+\text{False Positives}}$\
 \
-\
-$=\frac{\text{True Positives}}{\text{True Positives}+\text{False Positives}}$
-\
-\
-$=\frac{2*(\text{Precision}*\text{Recall})}{\text{Precision}+\text{Recall}}$
-\
+$=\frac{2*(\text{Precision}*\text{Recall})}{\text{Precision}+\text{Recall}}$\
+
 ```{r}
 #| echo: FALSE
 #| code-fold: FALSE
@@ -1195,8 +1197,10 @@ print(printTable)
 
 ```
 :::
+
 ::: {.column width="50%"}
 \
+
 ```{r}
 #| echo: TRUE
 #| code-fold: TRUE
@@ -1250,19 +1254,8 @@ rownames(printTable)=c('Accuracy','Recall',
 print(printTable)
 
 ```
-
-
 :::
-
 :::
-
-
-
-
-
-
-
-
 
 ## Confusion Matrix and Statistics {.smaller}
 
@@ -1416,6 +1409,7 @@ plt2 <-  tableGrob(cm_st)
 grid.arrange(plt1, plt2, nrow = 1, ncol = 2,
          	top=textGrob("Confusion Matrix",gp=gpar(fontsize=25,font=1)))
 ```
+
 ```{r}
 #| echo: TRUE
 #| code-fold: TRUE
@@ -1441,8 +1435,9 @@ print(t(round(cmBC,2)),quote=FALSE)
 
 ```
 
-
 # Conclusion {.smaller}
+
+![Diversity](SouthAfricaMap.PNG){absolute top=400 left = 400 width=200 height = 300}
 
 -   Predictive Model with 88% Accuracy.
 -   Range was the strongest predictor of extinction.
