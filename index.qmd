@@ -8,8 +8,6 @@ format:
 output: revealjs::revealjs_presentation
 ---
 
-# Introduction and Lit Review
-
 ## Introduction {.smaller}
 
 -   Ensemble machine learning method based on a large number of decision trees voting to predict a classification
@@ -46,15 +44,11 @@ output: revealjs::revealjs_presentation
 
 ## Literature Review
 
--   Feature Selection can be performed by training a large, unpruned random forest then feature importance can be used to help with identifying the most important features [@jaiswal2017application], leading to a reduction in computational requirements for a similar result as demonstrated in selecting features for human activity recognition [@uddin2015guided]
-    -   This method can be used to select features for a Random Forest but could also be used to assist in feature selection for other models as well
+-   Feature Selection can be performed by training a large, unpruned random forest then feature importance can be used to help with identifying the most important features [@jaiswal2017application], leading to a reduction in computational requirements
+
 
 # Methods {.smaller}
 
--   Bagging
--   Boosting
--   Random Feature Selection
--   Cross Validation
 
 ## Random Forest Improvements {.smaller}
 
@@ -71,6 +65,11 @@ output: revealjs::revealjs_presentation
 -   A random set of features is selected for each node in training
     -   Information about feature importance may be saved and applies in future iterations
     -   Even with automated random feature selection, feature selection and engineering prior to training may improve performance
+-   Increased accuracy
+     - Instead of one decision tree, Random Forest creates multiple decision trees.
+     - As more trees are added, the decision boundary becomes more accurate and stable.
+     - Useful when handling complex datasets and/or noisy data. 
+
 
 ## Decision Tree {.smaller}
 
@@ -105,6 +104,10 @@ species_test <- subset(dataP2, split2 == "FALSE")
 ::: {.column width="50%"}
 -   Single decision trees may be visualized to help modelers understand the dataset
     -   Important features for a single decision tree will likely be important for a full model
+-   The tree can be explained by two entities: internal nodes and leaves.
+     -  Each internal node represents a test on a feature.
+     -  Each leaf node represents a class label.
+
 :::
 
 ::: {.column width="50%"}
@@ -150,6 +153,10 @@ rpart.plot(m3)
 -   Validation of performance of model
     -   Resampling method similar to out of bag estimation
     -   Allows estimation of the general performance of a model
+-   Gini Index
+    - $I_G=1-\sum\limits_{i=1}^{j}p_i^2$
+    - Calculates the probability that a random entry will be in the wrong class if classified randomly where $p_i$ is the probability of class $i$
+    
 
 # Data {.smaller}
 
@@ -297,6 +304,41 @@ ggcorrplot::ggcorrplot(DescTools::PairApply(corrDF,DescTools::CramerV), type='lo
 
 ## Data Preparation {.smaller}
 
+::: panel-tabset
+
+
+### Before and After {.smaller}
+
+::: columns
+::: {.column width="50%"}
+
+```{r}
+#| echo: FALSE
+#| code-fold: FALSE
+#| output: TRUE
+#| code-summary: "Original"
+
+original_data <- read_csv("All_threat_data.csv")
+kable(head(original_data[0:4], 5))
+```
+:::
+
+
+::: {.column width="50%"}
+```{r}
+#| echo: FALSE
+#| code-fold: FALSE
+#| output: TRUE
+#| code-summary: "Encoded"
+encode_data <- read_csv("process.csv")
+kable(head(encode_data[0:4], 5))
+```
+
+:::
+:::
+### Preprocessing {.smaller}
+
+
 ```{r}
 #| echo: FALSE
 #| code-fold: FALSE
@@ -312,10 +354,10 @@ data <- read.csv("process.csv")
 
 ::: columns
 ::: {.column width="50%"}
--   Preprocessing
-    -   Encode categorical features into numerical / factor features
-    -   Split the training set into a training and test set,
-    -   Minimize class imbalance
+
+ -   Encode categorical features into numerical / factor features
+ -   Split the training set into a training and test set
+ -   Minimize class imbalance
 
 ```{r}
 #| echo: FALSE
@@ -400,6 +442,8 @@ rownames(printFactors)=c('1','2','3')
 print(printFactors,quote=FALSE)
 ```
 :::
+:::
+
 :::
 
 ## Class Balancing {.smaller}
@@ -504,7 +548,7 @@ $X_{new}=\frac{X_{old}-\min(X_{old})}{\max(X_{old})-\min(x_{old})}$
 ```{r}
 #| echo: FALSE
 #| code-fold: FALSE
-#| output: TRUE
+#| output: FALSE
 #| code-summary: "MinMax Code"
 
 trainMM <- as.data.frame(lapply(features_train, 
@@ -517,7 +561,7 @@ train$label <- label
 MMCounts <- table(train$label)
 
 MM <- randomForest(x = train[-ncol(data_train_combined)],
-                        y = as.factor(train$label), ntree = 2)
+                        y = as.factor(train$label), ntree = 4)
 importanceMM = importance(MM)
 PredMM <- predict(MM, testMM)
 accuracy <- sum(label_test == PredMM) / length(label_test)
@@ -564,7 +608,7 @@ train$label <- label
 MMCounts <- table(train$label)
 
 MM <- randomForest(x = train[-ncol(data_train_combined)],
-                        y = as.factor(train$label), ntree = 2)
+                        y = as.factor(train$label), ntree = 4)
 importanceMM = importance(MM)
 PredMM <- predict(MM, testMM)
 accuracy <- sum(label_test == PredMM) / length(label_test)
@@ -599,7 +643,7 @@ $X_{new}=\frac{X_{old}-\bar{X}_{old}}{\sigma_{X_{old}}}$
 ```{r}
 #| echo: FALSE
 #| code-fold: FALSE
-#| output: TRUE
+#| output: FALSE
 #| code-summary: "ZScore Code"
 
 TrainZS <- as.data.frame(lapply(features_train, 
@@ -612,7 +656,7 @@ train$label <- label
 ZSCounts <- table(train$label)
 
 ZS <- randomForest(x = train[-ncol(data_train_combined)],
-                      y = as.factor(train$label), ntree = 2)
+                      y = as.factor(train$label), ntree = 4)
 ImportanceZS = importance(ZS)
 PredZS <- predict(ZS, TestZS)
 accuracy <- sum(label_test == PredZS) / length(label_test)
@@ -657,7 +701,7 @@ train$label <- label
 ZSCounts <- table(train$label)
 
 ZS <- randomForest(x = train[-ncol(data_train_combined)],
-                      y = as.factor(train$label), ntree = 2)
+                      y = as.factor(train$label), ntree = 4)
 ImportanceZS = importance(ZS)
 PredZS <- predict(ZS, TestZS)
 accuracy <- sum(label_test == PredZS) / length(label_test)
@@ -691,7 +735,7 @@ $X_{new}=\frac{X_{old}}{\max(|X_{old}|)}$
 ```{r}
 #| echo: FALSE
 #| code-fold: FALSE
-#| output: TRUE
+#| output: FALSE
 #| code-summary: "Max Absolute Value Code"
 
 TrainMAV <- as.data.frame(lapply(features_train, 
@@ -705,7 +749,7 @@ MAVCounts <- table(train$label)
 
 MAV <- randomForest(x = train[-ncol(data_train_combined)], 
                         y = as.factor(train$label), 
-                        ntree = 2)
+                        ntree = 4)
 ImportanceMAV = importance(MAV)
 PredMAV <- predict(MAV, TestMAV)
 accuracy <- sum(label_test == PredMAV) / length(label_test)
@@ -750,7 +794,7 @@ MAVCounts <- table(train$label)
 
 MAV <- randomForest(x = train[-ncol(data_train_combined)], 
                         y = as.factor(train$label), 
-                        ntree = 2)
+                        ntree = 4)
 ImportanceMAV = importance(MAV)
 PredMAV <- predict(MAV, TestMAV)
 accuracy <- sum(label_test == PredMAV) / length(label_test)
@@ -783,7 +827,7 @@ $X_{new}=\frac{X_{old}}{\sum(|X_{old}|)}$
 ```{r}
 #| echo: FALSE
 #| code-fold: FALSE
-#| output: TRUE
+#| output: FALSE
 #| code-summary: "L1 Code"
 
 trainL1 <- as.data.frame(lapply(features_train, 
@@ -796,7 +840,7 @@ train$label <- label
 L1Counts <- table(train$label)
 
 L1 <- randomForest(x = train[-ncol(data_train_combined)], 
-                        y = as.factor(train$label), ntree = 2)
+                        y = as.factor(train$label), ntree = 4)
 L1Importance = importance(L1)
 PredL1 <- predict(L1, TestL1)
 accuracy <- sum(label_test == PredL1) / length(label_test)
@@ -840,7 +884,7 @@ train$label <- label
 L1Counts <- table(train$label)
 
 L1 <- randomForest(x = train[-ncol(data_train_combined)], 
-                        y = as.factor(train$label), ntree = 2)
+                        y = as.factor(train$label), ntree = 4)
 L1Importance = importance(L1)
 PredL1 <- predict(L1, TestL1)
 accuracy <- sum(label_test == PredL1) / length(label_test)
@@ -873,7 +917,7 @@ $X_{new}=\frac{X_{old}}{\sqrt{\sum{X_{old}^2}}}$
 ```{r}
 #| echo: FALSE
 #| code-fold: FALSE
-#| output: TRUE
+#| output: FALSE
 #| code-summary: "L2 Code"
 
 TrainL2 <- as.data.frame(lapply(features_train, 
@@ -886,7 +930,7 @@ train$label <- label
 L2Counts <- table(train$label)
 
 L2 <- randomForest(x = train[-ncol(data_train_combined)], 
-                        y = as.factor(train$label), ntree = 2)
+                        y = as.factor(train$label), ntree = 4)
 L2Importance = importance(L2)
 PredL2 <- predict(L2, TestL2)
 accuracy <- sum(label_test == PredL2) / length(label_test)
@@ -935,7 +979,7 @@ train$label <- label
 L2Counts <- table(train$label)
 
 L2 <- randomForest(x = train[-ncol(data_train_combined)], 
-                        y = as.factor(train$label), ntree = 2)
+                        y = as.factor(train$label), ntree = 4)
 L2Importance = importance(L2)
 PredL2 <- predict(L2, TestL2)
 accuracy <- sum(label_test == PredL2) / length(label_test)
@@ -967,7 +1011,7 @@ print(printTable)
 
 ## Prediction Method {.smaller}
 
--   Each independently trained decision tree produces its own prediction
+-   Each independently trained Random Forest produces its own prediction
     -   Trained on different subsets of both data and features
 -   The results from each decision tree are combined into a voting classifier using a Mode function
     -   $y_{final}=\text{mode}(\{y_1,y_2,y_3,y_4,y_5\})$
@@ -1450,7 +1494,7 @@ print(t(round(cmBC,2)),quote=FALSE)
 
 ::: columns
 ::: {.column width="50%"}
--   Predictive Model with 88% Accuracy.
+-   Predictive Model with 92% Accuracy.
 -   Range was the strongest predictor of extinction.
     -   Cape Floristic region (Fynbos biome)
     -   Perennial shrubs
