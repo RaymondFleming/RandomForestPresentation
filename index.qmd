@@ -1,5 +1,5 @@
 ---
-title: "Predicting Plant Extinctions Using the Random Forest Algorithm"
+title: "Predicting Plant Extinctions with Random Forests"
 author: "Kristen Monaco, Praya Cheekapara, Raymond Fleming, Teng Ma"
 format: 
   revealjs: 
@@ -153,9 +153,8 @@ rpart.plot(m3)
 
 # Data {.smaller}
 
-![](plantdiversity.png){absolute top=400 left = 400 width=200 height = 300}
-
-
+::: columns
+::: {.column width="50%"}
 -   South African Red List
 
     -   Data about plants with their habitat, traits, distribution, and factors influencing their current threatened/extinct status
@@ -163,6 +162,17 @@ rpart.plot(m3)
 -   Purpose
 
     -   Predict whether or not an unknown plant is extinct based on the above characteristics
+
+:::
+
+::: {.column width="50%"}
+![](plantdiversity.png){width="100%"}
+:::
+:::
+
+
+
+
 
 ## Distribution of Range by Conservation Status {.smaller}
 
@@ -1437,19 +1447,18 @@ print(t(round(cmBC,2)),quote=FALSE)
 
 # Conclusion {.smaller}
 
-![Diversity](SouthAfricaMap.PNG){absolute top=400 left = 400 width=200 height = 300}
 
+::: columns
+::: {.column width="50%"}
 -   Predictive Model with 88% Accuracy.
 -   Range was the strongest predictor of extinction.
     -   Cape Floristic region (Fynbos biome)
     -   Perennial shrubs
 -   Habitat loss was the 2nd most important variable.
 -   Further studies could include increased surveillance of threats, species monitoring, and ecological value of plant biodiversity.
-
-::: columns
-::: {.column width="50%"}
 :::
 
 ::: {.column width="50%"}
+![](SouthAfricaMap.PNG){width="100%"}
 :::
 :::
