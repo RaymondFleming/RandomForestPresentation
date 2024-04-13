@@ -10,11 +10,23 @@ output: revealjs::revealjs_presentation
 
 ## Introduction {.smaller}
 
+::: columns
+::: {.column width="50%"}
 -   Ensemble machine learning method based on a large number of decision trees voting to predict a classification
 -   Benefits compared to decision tree:
     -   Able to function with incomplete data
     -   Lower likelihood of an overfit
     -   Improved prediction accuracy
+:::
+
+::: {.column width="50%"}
+![](forest.png){width="85%"}
+:::
+:::
+
+
+    
+
 
 ## Random Forest Applications {.smaller}
 
@@ -1061,7 +1073,7 @@ print(printTable)
 
 ```
 
--   Prediction using a combination of trees leads to a better accuracy on all metrics
+-   Prediction using a combination of random forests leads to a better accuracy on all metrics
 :::
 
 ::: {.column width="70%"}
