@@ -1,6 +1,7 @@
 ---
 title: "Predicting Plant Extinctions with Random Forests"
 author: "Kristen Monaco, Praya Cheekapara, Raymond Fleming, Teng Ma"
+bibliography: references.bib
 format: 
   revealjs: 
     theme: [simple, custom.scss]
@@ -17,10 +18,12 @@ output: revealjs::revealjs_presentation
     -   Able to function with incomplete data
     -   Lower likelihood of an overfit
     -   Improved prediction accuracy
+
 :::
 
 ::: {.column width="50%"}
-![](forest.png){width="85%"}
+![](forest.png){width="78%"}
+[@Anthony_2012]
 :::
 :::
 
@@ -58,6 +61,7 @@ output: revealjs::revealjs_presentation
 
 -   Feature Selection can be performed by training a large, unpruned random forest then feature importance can be used to help with identifying the most important features [@jaiswal2017application], leading to a reduction in computational requirements
 
+-   Biau and Scornet [@biau2016random] present an extensive exploration of Random Forests, covering aspects of theoretical foundations, model evaluation, and empirical performance. They discuss how tree construction, feature selection, and ensemble learning aid in predictive analysis.
 
 # Methods {.smaller}
 
@@ -580,11 +584,11 @@ accuracy <- sum(label_test == PredMM) / length(label_test)
 testfactorMM <- as.factor(label_test)
 PredFactorMM <- as.factor(PredMM)
 cm <- confusionMatrix(PredFactorMM, testfactorMM)
-rownames(cm$byClass)<-c("LC","Thr","Ext")
-recall <- mean(c(cm$byClass["LC", "Sensitivity"], 
+rownames(cm$byClass)<-c("NotThr","Thr","Ext")
+recall <- mean(c(cm$byClass["NotThr", "Sensitivity"], 
                  cm$byClass["Thr", "Sensitivity"], 
                  cm$byClass["Ext", "Sensitivity"]))
-precision <- mean(c(cm$byClass["LC", "Pos Pred Value"], 
+precision <- mean(c(cm$byClass["NotThr", "Pos Pred Value"], 
                     cm$byClass["Thr", "Pos Pred Value"], 
                     cm$byClass["Ext", "Pos Pred Value"]))
 F1 = 2 * recall * precision / ( recall + precision )
@@ -627,11 +631,11 @@ accuracy <- sum(label_test == PredMM) / length(label_test)
 testfactorMM <- as.factor(label_test)
 PredFactorMM <- as.factor(PredMM)
 cm <- confusionMatrix(PredFactorMM, testfactorMM)
-rownames(cm$byClass)<-c("LC","Thr","Ext")
-recall <- mean(c(cm$byClass["LC", "Sensitivity"], 
+rownames(cm$byClass)<-c("NotThr","Thr","Ext")
+recall <- mean(c(cm$byClass["NotThr", "Sensitivity"], 
                  cm$byClass["Thr", "Sensitivity"], 
                  cm$byClass["Ext", "Sensitivity"]))
-precision <- mean(c(cm$byClass["LC", "Pos Pred Value"], 
+precision <- mean(c(cm$byClass["NotThr", "Pos Pred Value"], 
                     cm$byClass["Thr", "Pos Pred Value"], 
                     cm$byClass["Ext", "Pos Pred Value"]))
 F1 = 2 * recall * precision / ( recall + precision )
@@ -1051,13 +1055,13 @@ accuracy <-sum(label_test == final_pred)/length(label_test)
 final_pred_factor <-as.factor(final_pred)
 label_test_factor <-as.factor(label_test)
 cm_vote <-confusionMatrix(final_pred_factor, label_test_factor)
-rownames(cm_vote$byClass)<-c("LC","Thr","Ext")
-sensitivity_class1 <-cm_vote$byClass["LC", "Sensitivity"]
+rownames(cm_vote$byClass)<-c("NotThr","Thr","Ext")
+sensitivity_class1 <-cm_vote$byClass["NotThr", "Sensitivity"]
 sensitivity_class2 <-cm_vote$byClass["Thr", "Sensitivity"]
 sensitivity_class3 <-cm_vote$byClass["Ext", "Sensitivity"]
 recall =(sensitivity_class1+sensitivity_class2+sensitivity_class3)/3
 
-precision_class1 <-cm_vote$byClass["LC", "Pos Pred Value"]
+precision_class1 <-cm_vote$byClass["NotThr", "Pos Pred Value"]
 precision_class2 <-cm_vote$byClass["Thr", "Pos Pred Value"]
 precision_class3 <-cm_vote$byClass["Ext", "Pos Pred Value"]
 precision=(precision_class1+precision_class2+precision_class3)/3
@@ -1097,13 +1101,13 @@ accuracy <-sum(label_test == final_pred)/length(label_test)
 final_pred_factor <-as.factor(final_pred)
 label_test_factor <-as.factor(label_test)
 cm_vote <-confusionMatrix(final_pred_factor, label_test_factor)
-rownames(cm_vote$byClass)<-c("LC","Thr","Ext")
-sensitivity_class1 <-cm_vote$byClass["LC", "Sensitivity"]
+rownames(cm_vote$byClass)<-c("NotThr","Thr","Ext")
+sensitivity_class1 <-cm_vote$byClass["NotThr", "Sensitivity"]
 sensitivity_class2 <-cm_vote$byClass["Thr", "Sensitivity"]
 sensitivity_class3 <-cm_vote$byClass["Ext", "Sensitivity"]
 recall =(sensitivity_class1+sensitivity_class2+sensitivity_class3)/3
 
-precision_class1 <-cm_vote$byClass["LC", "Pos Pred Value"]
+precision_class1 <-cm_vote$byClass["NotThr", "Pos Pred Value"]
 precision_class2 <-cm_vote$byClass["Thr", "Pos Pred Value"]
 precision_class3 <-cm_vote$byClass["Ext", "Pos Pred Value"]
 precision=(precision_class1+precision_class2+precision_class3)/3
@@ -1229,9 +1233,9 @@ final_pred_factor<-as.factor(final_pred)
 label_test_factor<-as.factor(label_test)
 cm_vote <-confusionMatrix(final_pred_factor,
                           label_test_factor)
-rownames(cm_vote$byClass)<-c("LC","Thr","Ext")
+rownames(cm_vote$byClass)<-c("NotThr","Thr","Ext")
 sensitivity_class1<-cm_vote$byClass[
-                    "LC", "Sensitivity"]
+                    "NotThr", "Sensitivity"]
 sensitivity_class2<-cm_vote$byClass[
                     "Thr", "Sensitivity"]
 sensitivity_class3<-cm_vote$byClass[
@@ -1240,7 +1244,7 @@ recall =(sensitivity_class1+sensitivity_class2+
            sensitivity_class3)/3
 
 precision_class1<-cm_vote$byClass[
-                  "LC",  "Pos Pred Value"]
+                  "NotThr",  "Pos Pred Value"]
 precision_class2<-cm_vote$byClass[
                   "Thr",  "Pos Pred Value"]
 precision_class3<-cm_vote$byClass[
@@ -1288,9 +1292,9 @@ final_pred_factor<-as.factor(final_pred)
 label_test_factor<-as.factor(label_test)
 cm_vote <-confusionMatrix(final_pred_factor,
                           label_test_factor)
-rownames(cm_vote$byClass)<-c("LC","Thr","Ext")
+rownames(cm_vote$byClass)<-c("NotThr","Thr","Ext")
 sensitivity_class1<-cm_vote$byClass[
-                    "LC", "Sensitivity"]
+                    "NotThr", "Sensitivity"]
 sensitivity_class2<-cm_vote$byClass[
                     "Thr", "Sensitivity"]
 sensitivity_class3<-cm_vote$byClass[
@@ -1299,7 +1303,7 @@ recall =(sensitivity_class1+sensitivity_class2+
            sensitivity_class3)/3
 
 precision_class1<-cm_vote$byClass[
-                  "LC",  "Pos Pred Value"]
+                  "NotThr",  "Pos Pred Value"]
 precision_class2<-cm_vote$byClass[
                   "Thr",  "Pos Pred Value"]
 precision_class3<-cm_vote$byClass[
@@ -1387,7 +1391,7 @@ rownames(printTable)=c('Accuracy','Accuracy p-value','95% CI','Kappa')
 print(printTable,quote=FALSE)
 
 cmBC<-cm$byClass
-rownames(cmBC)<-c("LC","Thr","Ext")
+rownames(cmBC)<-c("NotThr","Thr","Ext")
 print(t(round(cmBC,2)),quote=FALSE)
 
 ```
@@ -1496,12 +1500,12 @@ rownames(printTable)=c('Accuracy','Accuracy p-value','95% CI','Kappa')
 print(printTable,quote=FALSE)
 
 cmBC<-cm$byClass
-rownames(cmBC)<-c("LC","Thr","Ext")
+rownames(cmBC)<-c("NotThr","Thr","Ext")
 print(t(round(cmBC,2)),quote=FALSE)
 
 ```
 
-# Conclusion {.smaller}
+## Conclusion {.smaller}
 
 
 ::: columns
@@ -1516,5 +1520,8 @@ print(t(round(cmBC,2)),quote=FALSE)
 
 ::: {.column width="50%"}
 ![](SouthAfricaMap.PNG){width="100%"}
+[@mokotjomela2023diversity]
 :::
 :::
+
+## References
