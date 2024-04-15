@@ -57,11 +57,13 @@ output: revealjs::revealjs_presentation
 :::
 :::
 
-## Literature Review
+## Literature Review {.smaller}
 
 -   Feature Selection can be performed by training a large, unpruned random forest then feature importance can be used to help with identifying the most important features [@jaiswal2017application], leading to a reduction in computational requirements
 
 -   Biau and Scornet [@biau2016random] present an extensive exploration of Random Forests, covering aspects of theoretical foundations, model evaluation, and empirical performance. They discuss how tree construction, feature selection, and ensemble learning aid in predictive analysis.
+
+-   Filtration method is a feature selection technique that ranks characteristics of data according to weight. The features whose weights are greater than the threshold are retained to help improve accuracy of classification [@Ren2017research]
 
 # Methods {.smaller}
 
@@ -164,7 +166,7 @@ rpart.plot(m3)
  rpart.plot(m3)
 ```
 
-## Validation Metrics
+## Validation Metrics {.smaller}
 
 -   Validation of performance of model
     -   Resampling method similar to out of bag estimation
@@ -174,7 +176,7 @@ rpart.plot(m3)
     - Calculates the probability that a random entry will be in the wrong class if classified randomly where $p_i$ is the probability of class $i$
     
 
-# Data {.smaller}
+# Data
 
 ::: columns
 ::: {.column width="50%"}
@@ -322,36 +324,6 @@ ggcorrplot::ggcorrplot(DescTools::PairApply(corrDF,DescTools::CramerV), type='lo
 
 ::: panel-tabset
 
-
-### Before and After {.smaller}
-
-::: columns
-::: {.column width="50%"}
-
-```{r}
-#| echo: FALSE
-#| code-fold: FALSE
-#| output: TRUE
-#| code-summary: "Original"
-
-original_data <- read_csv("All_threat_data.csv")
-kable(head(original_data[0:4], 5))
-```
-:::
-
-
-::: {.column width="50%"}
-```{r}
-#| echo: FALSE
-#| code-fold: FALSE
-#| output: TRUE
-#| code-summary: "Encoded"
-encode_data <- read_csv("process.csv")
-kable(head(encode_data[0:4], 5))
-```
-
-:::
-:::
 ### Preprocessing {.smaller}
 
 
@@ -457,6 +429,36 @@ colnames(printFactors)=c('Raw','Factor')
 rownames(printFactors)=c('1','2','3')
 print(printFactors,quote=FALSE)
 ```
+:::
+:::
+
+### Before and After {.smaller}
+
+::: columns
+::: {.column width="50%"}
+
+```{r}
+#| echo: FALSE
+#| code-fold: FALSE
+#| output: TRUE
+#| code-summary: "Original"
+
+original_data <- read_csv("All_threat_data.csv")
+kable(head(original_data[0:4], 5))
+```
+:::
+
+
+::: {.column width="50%"}
+```{r}
+#| echo: FALSE
+#| code-fold: FALSE
+#| output: TRUE
+#| code-summary: "Encoded"
+encode_data <- read_csv("process.csv")
+kable(head(encode_data[0:4], 5))
+```
+
 :::
 :::
 
@@ -1524,4 +1526,4 @@ print(t(round(cmBC,2)),quote=FALSE)
 :::
 :::
 
-## References
+## References {.smaller}
