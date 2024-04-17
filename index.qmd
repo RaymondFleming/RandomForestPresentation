@@ -13,7 +13,7 @@ output: revealjs::revealjs_presentation
 
 ::: columns
 ::: {.column width="50%"}
--   Ensemble machine learning method based on a large number of decision trees voting to predict a classification
+-   Random Forests are an ensemble machine learning method based on a large number of decision trees voting to predict a classification
 -   Benefits compared to decision tree:
     -   Able to function with incomplete data
     -   Lower likelihood of an overfit
@@ -1159,7 +1159,7 @@ bagged_cv <- train(
  
 plot(varImp(bagged_cv), 10) 
 ```
--   Range is the most important feature to predict Group Status followed by Habitat Loss and Growth Form are also important features
+-   Range is the most important feature to predict Group Status followed by Habitat Loss and Growth Form
     -   Life Form, Other, and Unknown are unimportant for prediction 
 :::
 
