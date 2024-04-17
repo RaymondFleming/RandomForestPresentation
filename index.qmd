@@ -60,9 +60,11 @@ output: revealjs::revealjs_presentation
 ## Literature Review {.smaller}
 
 -   Feature Selection can be performed by training a large, unpruned random forest then feature importance can be used to help with identifying the most important features [@jaiswal2017application], leading to a reduction in computational requirements
-
+\
+\
 -   Biau and Scornet [@biau2016random] present an extensive exploration of Random Forests, covering aspects of theoretical foundations, model evaluation, and empirical performance. They discuss how tree construction, feature selection, and ensemble learning aid in predictive analysis.
-
+\
+\
 -   Filtration method is a feature selection technique that ranks characteristics of data according to weight. The features whose weights are greater than the threshold are retained to help improve accuracy of classification [@Ren2017research]
 
 # Methods {.smaller}
@@ -79,14 +81,10 @@ output: revealjs::revealjs_presentation
 
 ## Random Forest Improvements Continued {.smaller}
 
--      Boosting
+-   Boosting
     -   When individual models are trained in a sequential way, each model then learns the mistakes made by the preceding model.A random set of features is selected for each node in training
     -   Information about feature importance may be saved and applies in future iterations
     -   Even with automated random feature selection, feature selection and engineering prior to training may improve performance
--   Increased accuracy
-     - Instead of one decision tree, Random Forest creates multiple decision trees.
-     - As more trees are added, the decision boundary becomes more accurate and stable.
-     - Useful when handling complex datasets and/or noisy data. 
 
 
 ## Decision Tree {.smaller}
