@@ -75,12 +75,12 @@ output: revealjs::revealjs_presentation
         -   Using a subset of the dataset reduces the probability of an overfit model
         -   Rows with missing data will often be left out of the sample, improving performance
         -   Performed with replacement
--   Boosting
-    -   When individual models are trained in a sequential way, each model then learns the mistakes made by the preceding model.
+
 
 ## Random Forest Improvements Continued {.smaller}
 
--   A random set of features is selected for each node in training
+-      Boosting
+    -   When individual models are trained in a sequential way, each model then learns the mistakes made by the preceding model.A random set of features is selected for each node in training
     -   Information about feature importance may be saved and applies in future iterations
     -   Even with automated random feature selection, feature selection and engineering prior to training may improve performance
 -   Increased accuracy
@@ -176,7 +176,7 @@ rpart.plot(m3)
     - Calculates the probability that a random entry will be in the wrong class if classified randomly where $p_i$ is the probability of class $i$
     
 
-# Data
+# Data {.smaller}
 
 ::: columns
 ::: {.column width="50%"}
@@ -1159,7 +1159,6 @@ bagged_cv <- train(
  
 plot(varImp(bagged_cv), 10) 
 ```
-
 -   Range is the most important feature to predict Group Status
     -   Habitat Loss and Growth Form are also important features
     -   Life Form, Other, and Unknown are unimportant for prediction
