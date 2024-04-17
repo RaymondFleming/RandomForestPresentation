@@ -1159,9 +1159,8 @@ bagged_cv <- train(
  
 plot(varImp(bagged_cv), 10) 
 ```
--   Range is the most important feature to predict Group Status
-    -   Habitat Loss and Growth Form are also important features
-    -   Life Form, Other, and Unknown are unimportant for prediction
+-   Range is the most important feature to predict Group Status followed by Habitat Loss and Growth Form are also important features
+    -   Life Form, Other, and Unknown are unimportant for prediction 
 :::
 
 ::: {.column width="50%"}
