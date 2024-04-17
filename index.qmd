@@ -287,7 +287,6 @@ train<-read.csv("All_threat_data.csv")
 #| output-location: fragment
 
 corrDF <- train %>% mutate(Range=ntile(Range, n=20))
-corrDF <- 
 corrDF <- corrDF %>% select(!GenSpec) %>% mutate(across(c("Group","LF","GF","Range",
                                      "Biomes","Range","Habitat_degradation",
                                      "Habitat_loss","IAS","Other",
@@ -306,7 +305,6 @@ ggcorrplot::ggcorrplot(DescTools::PairApply(corrDF,DescTools::CramerV), type='lo
 #| code-summary: "Association Visualization Code"
 
 corrDF <- train %>% mutate(Range=ntile(Range, n=20))
-corrDF <- 
 corrDF <- corrDF %>% select(!GenSpec) %>% mutate(across(c("Group","LF","GF","Range",
                                      "Biomes","Range","Habitat_degradation",
                                      "Habitat_loss","IAS","Other",
